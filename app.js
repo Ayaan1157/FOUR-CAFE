@@ -11,43 +11,56 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ==========================================
-  // 1. DIPTYCH SPLIT-PANEL PRELOADER
+  // 1. DIPTYCH SPLIT-PANEL PRELOADER (ULTRA-FAST & ADAPTIVE)
   // ==========================================
   const preloader = document.getElementById('preloader');
   const loaderCounter = document.getElementById('loader-counter');
 
-
-
-  // Phase 1: Slide image panels in from top/bottom
+  // Phase 1: Slide image panels in immediately
   requestAnimationFrame(() => {
     if (preloader) preloader.classList.add('panels-in');
   });
 
-  // Phase 2: Animate the percentage counter 0% â†’ 100%
   let progress = 0;
-  const counterDuration = 2800; // total ms for the counter to reach 100
-  const counterInterval = 30;   // update every 30ms
-  const counterSteps = counterDuration / counterInterval;
-  const counterIncrement = 100 / counterSteps;
+  let isPageLoaded = false;
 
+  // Listen to window load event
+  window.addEventListener('load', () => {
+    isPageLoaded = true;
+  });
+
+  // Safe fallback if load event already fired
+  if (document.readyState === 'complete') {
+    isPageLoaded = true;
+  }
+
+  // Phase 2: Animate the percentage counter 0% → 100%
   const counterTimer = setInterval(() => {
-    progress = Math.min(100, progress + counterIncrement);
+    // Accelerate loading progress if page has loaded, otherwise run smooth and steady
+    const increment = isPageLoaded ? 8 : 2;
+    progress = Math.min(100, progress + increment);
     const pct = Math.round(progress);
+    
     if (loaderCounter) {
       loaderCounter.textContent = `Configuring experience... ${pct}%`;
     }
+
     if (pct >= 100) {
       clearInterval(counterTimer);
-      // Phase 3: After a brief hold, slide panels out & fade
+      
+      // Phase 3: Fast, premium exit transition
       setTimeout(() => {
         if (preloader) preloader.classList.add('panels-out');
+        
         // Fade entire preloader after panels have exited
         setTimeout(() => {
           if (preloader) preloader.classList.add('fade-out');
-        }, 1100);
-      }, 600);
+        }, 550);
+      }, 150); // Snappy 150ms hold
     }
-  }, counterInterval);
+  }, 20);
+
+
 
 
 
