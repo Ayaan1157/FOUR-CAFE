@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="4 ≡ UR CAFÉ — A cinematic, scroll-driven luxury lifestyle café in Bengaluru. Experience deliberate contrast, antigravity design, and cold luxury.">
+  <title>4 ≡ UR CAFÉ | Luxury Lifestyle Café, Bengaluru</title>
+  
+  <!-- Preload premium typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Serif+Display:ital@0;1&family=Montserrat:wght@300;500&display=swap" rel="stylesheet">
+  
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Preloader — Diptych Split Panel (Private Members Club Entrance) -->
+  <div class="preloader" id="preloader">
+    
+    <!-- LEFT: Image Diptych (70%) — Two panels sliding in from top/bottom -->
+    <div class="preloader-diptych">
+      <div class="diptych-panel diptych-top" id="diptych-top">
+        <img src="cinematic_room.png" alt="Cinematic Interior">
+        <div class="diptych-overlay"></div>
+      </div>
+      <div class="diptych-panel diptych-bottom" id="diptych-bottom">
+        <img src="hidden_room.png" alt="Hidden Chamber">
+        <div class="diptych-overlay"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Brand Identity Panel (30%) -->
+    <div class="preloader-identity" id="preloader-identity">
+      <div class="identity-inner">
+        <h1 class="identity-logo">
+          4<span class="identity-symbol">≡</span>UR
+        </h1>
+        <div class="identity-divider"></div>
+        <span class="identity-city">B E N G A L U R U</span>
+        <div class="identity-loader">
+          <span class="loader-counter" id="loader-counter">Configuring experience... 0%</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Film grain texture overlay -->
+  <div class="grain"></div>
+
+  <!-- Custom Cursor -->
+  <div class="custom-cursor" id="custom-cursor"></div>
+
+  <!-- Global Navigation Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="#" class="logo logo-nav interactive">
+        4<span class="o-lines"><span></span><span></span><span></span><span></span></span>UR <span class="logo-sub">CAFÉ</span>
+      </a>
+      <nav class="nav">
+        <a href="#spaces" class="nav-link interactive">Spaces</a>
+        <a href="#cuisine" class="nav-link interactive">Cuisine</a>
+        <a href="#exclusivity" class="nav-link interactive">Exclusivity</a>
+        <a href="#membership" class="nav-link interactive">Membership</a>
+      </nav>
+      <div class="header-cta">
+        <a href="#membership" class="btn-minimal interactive">Reserve a Drop</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Scroll Container -->
+  <main class="smooth-scroll-container">
+
+    <!-- HERO VIDEO SCROLL PIN SECTION (600vh) -->
+    <section class="video-scroll-section" id="hero">
+      <div class="video-sticky-wrapper">
+        
+        <!-- 3D WebGL Canvas controlled entirely by scroll position -->
+        <canvas id="canvas-3d" class="bg-3d-canvas"></canvas>
+        
+        <!-- Subtle dark vignette overlay -->
+        <div class="video-overlay"></div>
+
+        <!-- ANTIGRAVITY TEXT OVERLAYS -->
+        <div class="text-overlay-container">
+          
+          <div class="text-group align-center" data-range="0,0.15">
+            <h2 class="headline-large">4 ≡ UR WAS NEVER CREATED</h2>
+            <h2 class="headline-large text-beige">TO BE JUST A CAFÉ.</h2>
+          </div>
+
+          <div class="text-group align-left" data-range="0.18,0.32">
+            <h2 class="headline-large">IT WAS BUILT AS A</h2>
+            <h2 class="headline-large text-beige">LIFESTYLE UNIVERSE.</h2>
+          </div>
+
+          <div class="text-group align-right" data-range="0.35,0.49">
+            <h2 class="headline-large">IN A WORLD WHERE EVERYTHING</h2>
+            <h2 class="headline-large">BECAME FAST AND FORGETTABLE —</h2>
+            <h2 class="headline-large text-beige">4 ≡ UR WAS CREATED TO MAKE</h2>
+            <h2 class="headline-large italic-quote">experiences feel rare again.</h2>
+          </div>
+
+          <div class="text-group align-left" data-range="0.52,0.66">
+            <h2 class="headline-large">CUISINE IS NOT JUST FOOD.</h2>
+            <h3 class="pull-quote text-beige">It is storytelling.</h3>
+          </div>
+
+          <div class="text-group align-right" data-range="0.69,0.83">
+            <h2 class="headline-large">LIMITED DROPS.</h2>
+            <h2 class="headline-large">PRIVATE EVENTS.</h2>
+            <h2 class="headline-large">MEMBERS ONLY.</h2>
+            <h2 class="headline-large text-beige">EVERYTHING INTENTIONAL.</h2>
+          </div>
+
+          <div class="text-group align-center" data-range="0.86,1.0">
+            <h2 class="headline-large">IT IS NOT JUST A PLACE PEOPLE VISIT.</h2>
+            <h3 class="pull-quote pull-quote-large text-beige">It is a world people want to belong to.</h3>
+          </div>
+
+        </div>
+
+        <!-- Sleek scroll-down hint -->
+        <div class="scroll-hint">
+          <div class="scroll-line"></div>
+          <span class="scroll-text">SCROLL TO POUR</span>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 1: THE SPACES -->
+    <section class="section-spaces" id="spaces">
+      <div class="section-header">
+        <span class="section-tag">// THE SPACES</span>
+        <h2 class="section-title">Architectural Sanctuaries</h2>
+        <p class="section-subtitle">Four distinct chambers sculpted in raw dark stone and bronze, where time ceases to exist.</p>
+      </div>
+
+      <!-- Draggable horizontal track -->
+      <div class="drag-track-container interactive" id="drag-container">
+        <div class="drag-track" id="drag-track">
+          
+          <div class="space-card float-pos-1 interactive">
+            <div class="card-image-wrapper">
+              <img src="quiet_room.png" alt="The Quiet Room" class="card-img" />
+              <div class="card-overlay"></div>
+            </div>
+            <div class="card-content">
+              <span class="card-num">01</span>
+              <h3 class="card-title">The Quiet Room</h3>
+              <p class="card-desc">A deep matte-black soundproof vault built for complete sensory isolation, silence, and intense focus.</p>
+            </div>
+          </div>
+
+          <div class="space-card float-pos-2 interactive">
+            <div class="card-image-wrapper">
+              <img src="cinematic_room.png" alt="The Cinematic Room" class="card-img" />
+              <div class="card-overlay"></div>
+            </div>
+            <div class="card-content">
+              <span class="card-num">02</span>
+              <h3 class="card-title">The Cinematic Room</h3>
+              <p class="card-desc">Soft, deep velvet seating aligned before a curated frame, matching slow motion imagery with cold brews.</p>
+            </div>
+          </div>
+
+          <div class="space-card float-pos-3 interactive">
+            <div class="card-image-wrapper">
+              <img src="hidden_room.png" alt="The Hidden Room" class="card-img" />
+              <div class="card-overlay"></div>
+            </div>
+            <div class="card-content">
+              <span class="card-num">03</span>
+              <h3 class="card-title">The Hidden Room</h3>
+              <p class="card-desc">Accessible only via private invitation. A hidden door reveals an intimate library bar and rare single origins.</p>
+            </div>
+          </div>
+
+          <div class="space-card float-pos-4 interactive">
+            <div class="card-image-wrapper">
+              <img src="social_room.png" alt="The Social Room" class="card-img" />
+              <div class="card-overlay"></div>
+            </div>
+            <div class="card-content">
+              <span class="card-num">04</span>
+              <h3 class="card-title">The Social Room</h3>
+              <p class="card-desc">High-ceiling raw concrete structure hosting conversations, art collection reveals, and the Bengaluru elite.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+      <div class="drag-hint">
+        <span class="drag-hint-text">DRAG TO DISCOVER</span>
+        <div class="drag-line"></div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 2: CUISINE AS STORYTELLING (CREAM CONTRAST) -->
+    <section class="section-cuisine" id="cuisine">
+      <div class="cuisine-background-shape"></div>
+      
+      <div class="cuisine-grid">
+        
+        <div class="cuisine-intro">
+          <span class="section-tag text-dark">// CUISINE AS STORYTELLING</span>
+          <h2 class="section-title text-dark">A Culinary Canvas</h2>
+          <p class="section-subtitle text-dark">We break away from darkness to introduce pure, deliberate cream aesthetics. Gastronomy here is not simply nourishment. It is a sequence of stories, told in micro-servings and rare ingredients.</p>
+        </div>
+
+        <div class="cuisine-blocks">
+          
+          <div class="cuisine-block block-pos-1 interactive">
+            <div class="block-image-wrapper">
+              <img src="fine_dining.png" alt="Fine Dining" class="block-img">
+            </div>
+            <div class="block-content">
+              <h3 class="block-title">Fine Dining</h3>
+              <p class="block-desc">Multi-sensory degustation menus designed around color frequencies, temperature shifts, and raw foraging.</p>
+            </div>
+          </div>
+
+          <div class="cuisine-block block-pos-2 interactive">
+            <div class="block-image-wrapper">
+              <img src="after_hours_lounge.png" alt="After-Hours Lounge" class="block-img">
+            </div>
+            <div class="block-content">
+              <h3 class="block-title">After-Hours Lounge</h3>
+              <p class="block-desc">When the sun sets, rare mocktails, botanical reductions, and slow ambient music reshape the space.</p>
+            </div>
+          </div>
+
+          <div class="cuisine-block block-pos-3 interactive">
+            <div class="block-image-wrapper">
+              <img src="exclusive_gatherings.png" alt="Exclusive Gatherings" class="block-img">
+            </div>
+            <div class="block-content">
+              <h3 class="block-title">Exclusive Gatherings</h3>
+              <p class="block-desc">Closed-door culinary drops, hosted by visiting Michelin talent for members and their invited guests.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+
+
+    <!-- SECTION 3: EXCLUSIVITY LIST -->
+    <section class="section-exclusivity" id="exclusivity">
+      <div class="exclusivity-wrapper">
+        <span class="section-tag">// OBJECTIVES</span>
+        
+        <div class="exclusivity-list">
+          
+          <div class="exclusivity-item interactive">
+            <div class="item-inner">
+              <h2 class="exclusivity-word">ATMOSPHERE</h2>
+              <span class="exclusivity-arrow">→</span>
+            </div>
+            <div class="exclusivity-border"></div>
+          </div>
+
+          <div class="exclusivity-item interactive">
+            <div class="item-inner">
+              <h2 class="exclusivity-word">EXCLUSIVITY</h2>
+              <span class="exclusivity-arrow">→</span>
+            </div>
+            <div class="exclusivity-border"></div>
+          </div>
+
+          <div class="exclusivity-item interactive">
+            <div class="item-inner">
+              <h2 class="exclusivity-word">CREATIVITY</h2>
+              <span class="exclusivity-arrow">→</span>
+            </div>
+            <div class="exclusivity-border"></div>
+          </div>
+
+          <div class="exclusivity-item interactive">
+            <div class="item-inner">
+              <h2 class="exclusivity-word">CONNECTION</h2>
+              <span class="exclusivity-arrow">→</span>
+            </div>
+            <div class="exclusivity-border"></div>
+          </div>
+
+          <div class="exclusivity-item interactive">
+            <div class="item-inner">
+              <h2 class="exclusivity-word">GROWTH</h2>
+              <span class="exclusivity-arrow">→</span>
+            </div>
+            <div class="exclusivity-border"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- SECTION 4: MEMBERSHIP TIERS -->
+    <section class="section-membership" id="membership">
+      <div class="section-header center-align">
+        <span class="section-tag">// MEMBERSHIP</span>
+        <h2 class="section-title">The Fellowship of Intention</h2>
+        <p class="section-subtitle max-w-600">Access to 4 ≡ UR is reserved for those who value slow-living, deep-focus, and rare aesthetic experiences.</p>
+      </div>
+
+      <div class="membership-cards">
+        
+        <div class="member-card card-tier-four tier-float-1 interactive">
+          <div class="card-tier-glare"></div>
+          <div class="card-tier-header">
+            <span class="tier-tag">TIER I</span>
+            <h3 class="tier-name">4 ≡ UR</h3>
+          </div>
+          <div class="card-tier-price">₹15,000 <span class="price-cycle">/ MONTH</span></div>
+          <p class="tier-desc">Uncapped entry to The Social and Quiet Rooms. Daily curated single-origin credits, and preview access to lifestyle drop releases.</p>
+          <ul class="tier-features">
+            <li>Access to 2 primary chambers</li>
+            <li>Priority table bookings</li>
+            <li>2 curated drops per month</li>
+            <li>Complimentary guest passes (4x)</li>
+          </ul>
+          <a href="#" class="btn-tier interactive">Apply to Belong</a>
+        </div>
+
+        <div class="member-card card-tier-reserve tier-float-2 interactive">
+          <div class="card-tier-glare"></div>
+          <div class="card-tier-header">
+            <span class="tier-tag">TIER II</span>
+            <h3 class="tier-name">4 ≡ UR RESERVE</h3>
+          </div>
+          <div class="card-tier-price">₹35,000 <span class="price-cycle">/ MONTH</span></div>
+          <p class="tier-desc">Full 24/7 keycard entry to all chambers including The Cinematic Room. Personal lockers for rare reserves, and invitations to weekly micro-supper clubs.</p>
+          <ul class="tier-features">
+            <li>All 4 architectural chambers</li>
+            <li>Dedicated concierge & desk booking</li>
+            <li>Personal single-origin cellar storage</li>
+            <li>Invitations to weekly culinary stories</li>
+          </ul>
+          <a href="#" class="btn-tier btn-tier-accent interactive">Apply to Reserve</a>
+        </div>
+
+        <div class="member-card card-tier-founding tier-float-3 interactive">
+          <div class="card-tier-glare"></div>
+          <div class="card-tier-header">
+            <span class="tier-tag">TIER III</span>
+            <h3 class="tier-name">4 ≡ UR FOUNDING</h3>
+          </div>
+          <div class="card-tier-price">₹75,000 <span class="price-cycle">/ MONTH</span></div>
+          <p class="tier-desc">Limited to exactly 44 minds. Lifetime global key to the universe. Full booking rights for private retreats, custom tasting menus, and secret room access.</p>
+          <ul class="tier-features">
+            <li>Full private takeover rights (1x / qtr)</li>
+            <li>All secret room tastings included</li>
+            <li>Co-curator voting rights for art drops</li>
+            <li>Founding circle private dinners</li>
+          </ul>
+          <a href="#" class="btn-tier interactive">Inquire for Founding</a>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- SECTION 5: CLOSING SCREEN -->
+    <section class="section-closing" id="closing">
+      <div class="closing-inner">
+        
+        <!-- Large floating 4 ≡ UR logo -->
+        <div class="logo logo-closing logo-float-slow">
+          4<span class="o-lines"><span></span><span></span><span></span><span></span></span>UR
+        </div>
+
+        <!-- Tagline built word-by-word on entry -->
+        <h2 class="closing-tagline" id="closing-tagline">
+          <!-- Populated by JavaScript for word-by-word reveal -->
+        </h2>
+
+        <div class="closing-credits">
+          <span class="credit-item">4 ≡ UR</span>
+          <span class="credit-separator">·</span>
+          <span class="credit-item">BENGALURU</span>
+          <span class="credit-separator">·</span>
+          <span class="credit-item">EST. 2025</span>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- WebGL Three.js Library (Local for absolute reliability) -->
+  <script src="three.min.js"></script>
+  <!-- Lottie Web Animation Library (Local for absolute reliability) -->
+  <script src="lottie.min.js"></script>
+
+
+
+  <!-- Core Javascript Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
