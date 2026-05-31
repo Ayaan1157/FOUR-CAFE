@@ -1,4 +1,4 @@
-﻿/*
+/*
   FOUR CAFE â€” Hyper-Realistic WebGL 3D Cinematic Engine (8K Studio Quality)
   - ACES Filmic Tone Mapping & sRGB Output Encoding
   - Clearcoat Glazed Ceramic Mug Material
@@ -16,8 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const preloader = document.getElementById('preloader');
   const loaderCounter = document.getElementById('loader-counter');
 
-  let currentMerchTranslate = 0;
-  let targetMerchTranslate = 0;
+
 
   // Phase 1: Slide image panels in from top/bottom
   requestAnimationFrame(() => {
@@ -638,14 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dragTrack.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
     }
 
-    // 11g. Lerp Merch Carousel Drag Slider
-    if (merchTrack && merchCarousel) {
-      currentMerchTranslate += (targetMerchTranslate - currentMerchTranslate) * 0.08;
-      if (Math.abs(targetMerchTranslate - currentMerchTranslate) < 0.05) {
-        currentMerchTranslate = targetMerchTranslate;
-      }
-      merchTrack.style.transform = `translate3d(${currentMerchTranslate}px, 0, 0)`;
-    }
+
 
     // 11d. Lerp Custom Cursor
     if (cursor && !isTouchDevice) {
