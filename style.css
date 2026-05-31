@@ -276,23 +276,45 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: var(--cursor-size);
-  height: var(--cursor-size);
-  background-color: #FAF8F5;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(250, 248, 245, 0.04); /* Soft translucent ambient base */
+  box-shadow: 0 0 25px 12px rgba(250, 248, 245, 0.06); /* Gorgeous soft blurry shadow halo */
   border-radius: 50%;
   pointer-events: none;
   z-index: 10001;
   transform: translate(-50%, -50%);
-  mix-blend-mode: difference;
   transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
               height 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-              background-color 0.3s ease;
+              background-color 0.3s ease,
+              box-shadow 0.3s ease;
   will-change: top, left, width, height;
 }
+
+/* Tiny sharp pointer dot at the exact cursor center */
+.custom-cursor::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background-color: #FAF8F5; /* Warm brand white */
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
 .custom-cursor.expanded {
-  --cursor-size: 40px;
-  background-color: transparent;
-  border: 1px solid #FAF8F5;
+  width: 64px;
+  height: 64px;
+  background-color: rgba(184, 173, 154, 0.08); /* Warm stone-beige tint on hover */
+  box-shadow: 0 0 35px 18px rgba(184, 173, 154, 0.12); /* Expand shadow outline */
+}
+
+.custom-cursor.expanded::after {
+  transform: translate(-50%, -50%) scale(1.6); /* Scale dot slightly */
+  background-color: #B8AD9A; /* Tint dot to brand beige on hover */
 }
 
 /* Logo Design: The O replaced by 4 parallel horizontal lines */
