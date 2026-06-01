@@ -10,6 +10,14 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // Global DOM Queries (Declared at top to prevent TDZ ReferenceErrors)
+  const canvas3D = document.getElementById('canvas-3d');
+  const heroSection = document.getElementById('hero');
+  const roomCards = document.querySelectorAll('.room-card');
+  const exclusivityItems = document.querySelectorAll('.exclusivity-item');
+  const textGroups = document.querySelectorAll('.text-group');
+  const memberCards = document.querySelectorAll('.member-card');
+
   // ==========================================
   // 1. DIPTYCH SPLIT-PANEL PRELOADER (ULTRA-FAST & ADAPTIVE)
   // ==========================================
@@ -67,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 2. WEBGL RENDERER & CINEMATIC FILMIC ENVIRONMENT
   // ==========================================
-  const canvas3D = document.getElementById('canvas-3d');
   if (!canvas3D) return;
 
   const renderer = new THREE.WebGLRenderer({
@@ -377,7 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Scroll listener driving progress from 0 to 1 mapped to the section's scroll range
-  const heroSection = document.getElementById('hero');
   window.addEventListener('scroll', () => {
     if (!heroSection) return;
     
@@ -410,7 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(cacheScrollPositions, 1000);
 
   // Update dynamic staggered text overlays based on progress
-  const textGroups = document.querySelectorAll('.text-group');
   function updateTextOverlays(progress) {
     if (isNaN(progress)) progress = 0;
     textGroups.forEach(group => {
@@ -453,8 +458,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 6. THE ROOMS: 3D STACKING DEPTH ENGINE
   // ==========================================
-  const roomCards = document.querySelectorAll('.room-card');
-  
   function updateRoomCardStacking() {
     if (!roomCards.length || !roomCardOffsets.length) return;
     
@@ -503,7 +506,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 7. EXCLUSIVITY LIST: SCROLL ILLUMINATION
   // ==========================================
-  const exclusivityItems = document.querySelectorAll('.exclusivity-item');
 
   function updateExclusivityIllumination() {
     if (!exclusivityItems.length || !exclusivityItemOffsets.length) return;
@@ -530,7 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 8. MEMBERSHIP TIERS: GLARE REFLECTION
   // ==========================================
-  const memberCards = document.querySelectorAll('.member-card');
   memberCards.forEach(card => {
     const glare = card.querySelector('.card-tier-glare');
     if (!glare) return;
