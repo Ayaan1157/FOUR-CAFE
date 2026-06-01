@@ -397,73 +397,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ==========================================
-  // 6. THE SPACES: MOMENTUM DRAG ENGINE
+  // 6. THE ROOMS: 3D STACKING DEPTH ENGINE
   // ==========================================
-  const dragContainer = document.getElementById('drag-container');
-  const dragTrack = document.getElementById('drag-track');
+  const roomCards = document.querySelectorAll('.room-card');
   
-  let isDragging = false;
-  let dragStartX = 0;
-  let prevTranslate = 0;
-  let targetTranslate = 0;
-  let currentTranslate = 0;
-  let dragVelocity = 0;
-  let lastDragX = 0;
-  let lastDragTime = 0;
-
-  if (dragContainer && dragTrack) {
-    dragContainer.addEventListener('mousedown', (e) => startDrag(e.clientX));
-    window.addEventListener('mousemove', (e) => moveDrag(e.clientX));
-    window.addEventListener('mouseup', endDrag);
-
-    dragContainer.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientX), { passive: true });
-    window.addEventListener('touchmove', (e) => moveDrag(e.touches[0].clientX), { passive: true });
-    window.addEventListener('touchend', endDrag);
-
-    function startDrag(clientX) {
-      isDragging = true;
-      dragStartX = clientX;
-      prevTranslate = targetTranslate;
-      dragVelocity = 0;
-      lastDragX = clientX;
-      lastDragTime = performance.now();
-      dragContainer.style.cursor = 'grabbing';
-    }
-
-    function moveDrag(clientX) {
-      if (!isDragging) return;
+  function updateRoomCardStacking() {
+    if (!roomCards.length) return;
+    
+    roomCards.forEach((card, index) => {
+      const rect = card.getBoundingClientRect();
+      const cardTop = rect.top;
       
-      const currentX = clientX;
-      const currentTime = performance.now();
-      const deltaX = currentX - dragStartX;
-      targetTranslate = prevTranslate + deltaX;
-
-      const maxSlide = -(dragTrack.scrollWidth - dragContainer.clientWidth);
-      if (targetTranslate > 0) {
-        targetTranslate = targetTranslate * 0.35;
-      } else if (targetTranslate < maxSlide) {
-        targetTranslate = maxSlide + (targetTranslate - maxSlide) * 0.35;
+      // All cards pin/stack at 15vh (window.innerHeight * 0.15)
+      const stickyTop = window.innerHeight * 0.15;
+      
+      if (cardTop <= stickyTop + 2) {
+        // Track the next card to calculate how much it has overlapped the current card
+        const nextCard = roomCards[index + 1];
+        if (nextCard) {
+          const nextRect = nextCard.getBoundingClientRect();
+          const distance = nextRect.top - stickyTop;
+          
+          // Total scroll distance until fully stacked (card height 440px + gap 120px)
+          const overlapRange = 560; 
+          const progress = Math.max(0, Math.min(1, 1 - (distance / overlapRange)));
+          
+          // Dynamic editorial deck-stacking parameters
+          const scale = 1 - (progress * 0.05); // Gently scale down to 0.95
+          const brightness = 1 - (progress * 0.45); // Darken down to 0.55
+          const translateY = -progress * 16; // Subtle lift
+          
+          card.style.transform = `scale(${scale}) translateY(${translateY}px)`;
+          card.style.filter = `brightness(${brightness})`;
+        } else {
+          card.style.transform = 'scale(1) translateY(0)';
+          card.style.filter = 'brightness(1)';
+        }
+      } else {
+        card.style.transform = 'scale(1) translateY(0)';
+        card.style.filter = 'brightness(1)';
       }
-
-      const deltaTime = Math.max(1, currentTime - lastDragTime);
-      dragVelocity = (currentX - lastDragX) / deltaTime * 16.66;
-      lastDragX = currentX;
-      lastDragTime = currentTime;
-    }
-
-    function endDrag() {
-      if (!isDragging) return;
-      isDragging = false;
-      dragContainer.style.cursor = 'grab';
-      targetTranslate += dragVelocity * 0.95;
-
-      const maxSlide = -(dragTrack.scrollWidth - dragContainer.clientWidth);
-      if (targetTranslate > 0) {
-        targetTranslate = 0;
-      } else if (targetTranslate < maxSlide) {
-        targetTranslate = maxSlide;
-      }
-    }
+    });
   }
 
 
@@ -641,14 +615,8 @@ document.addEventListener('DOMContentLoaded', () => {
     cupGroup.rotation.y = currentRy + hoverRotY + mouseTiltY * 0.45;
     cupGroup.rotation.z = currentRz;
 
-    // 11c. Lerp Spaces Drag Slider
-    if (dragTrack && dragContainer) {
-      currentTranslate += (targetTranslate - currentTranslate) * 0.08;
-      if (Math.abs(targetTranslate - currentTranslate) < 0.05) {
-        currentTranslate = targetTranslate;
-      }
-      dragTrack.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
-    }
+    // 11c. Update 3D Stacking Cards Reveal Depth on Scroll
+    updateRoomCardStacking();
 
 
 

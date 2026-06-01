@@ -138,73 +138,80 @@
     </section>
 
 
-    <!-- SECTION 1: THE SPACES -->
-    <section class="section-spaces" id="spaces">
-      <div class="section-header">
-        <span class="section-tag">// THE SPACES</span>
-        <h2 class="section-title">Architectural Sanctuaries</h2>
-        <p class="section-subtitle">Four distinct chambers sculpted in raw dark stone and bronze, where time ceases to exist.</p>
+    <!-- SECTION 1: THE ROOMS (STICKY STACKING DECK) -->
+    <section class="section-rooms" id="spaces">
+      
+      <!-- Premium Editorial Header with Side Lines -->
+      <div class="rooms-section-header">
+        <div class="header-line"></div>
+        <h2 class="rooms-section-title">THE ROOMS</h2>
+        <div class="header-line"></div>
       </div>
 
-      <!-- Draggable horizontal track -->
-      <div class="drag-track-container interactive" id="drag-container">
-        <div class="drag-track" id="drag-track">
+      <!-- Scrolling Stack Container -->
+      <div class="rooms-scroll-container">
+        <div class="rooms-sticky-stack">
           
-          <div class="space-card float-pos-1 interactive">
-            <div class="card-image-wrapper">
-              <img src="quiet_room.png" alt="The Quiet Room" class="card-img" />
-              <div class="card-overlay"></div>
+          <!-- Card 1 -->
+          <div class="room-card interactive" id="room-card-1">
+            <div class="room-image-wrapper">
+              <img src="quiet_room.png" alt="The Quiet Room" class="room-img">
+              <div class="room-overlay"></div>
             </div>
-            <div class="card-content">
-              <span class="card-num">01</span>
-              <h3 class="card-title">The Quiet Room</h3>
-              <p class="card-desc">A deep matte-black soundproof vault built for complete sensory isolation, silence, and intense focus.</p>
-            </div>
-          </div>
-
-          <div class="space-card float-pos-2 interactive">
-            <div class="card-image-wrapper">
-              <img src="cinematic_room.png" alt="The Cinematic Room" class="card-img" />
-              <div class="card-overlay"></div>
-            </div>
-            <div class="card-content">
-              <span class="card-num">02</span>
-              <h3 class="card-title">The Cinematic Room</h3>
-              <p class="card-desc">Soft, deep velvet seating aligned before a curated frame, matching slow motion imagery with cold brews.</p>
+            <div class="room-content">
+              <span class="room-num">01</span>
+              <h3 class="room-name">THE QUIET ROOM</h3>
+              <p class="room-desc">A deep matte-black soundproof vault built for complete sensory isolation, silence, and intense focus.</p>
             </div>
           </div>
 
-          <div class="space-card float-pos-3 interactive">
-            <div class="card-image-wrapper">
-              <img src="hidden_room.png" alt="The Hidden Room" class="card-img" />
-              <div class="card-overlay"></div>
+          <!-- Card 2 -->
+          <div class="room-card interactive" id="room-card-2">
+            <div class="room-image-wrapper">
+              <img src="cinematic_room.png" alt="The Cinematic Room" class="room-img">
+              <div class="room-overlay"></div>
             </div>
-            <div class="card-content">
-              <span class="card-num">03</span>
-              <h3 class="card-title">The Hidden Room</h3>
-              <p class="card-desc">Accessible only via private invitation. A hidden door reveals an intimate library bar and rare single origins.</p>
+            <div class="room-content">
+              <span class="room-num">02</span>
+              <h3 class="room-name">THE CINEMATIC ROOM</h3>
+              <p class="room-desc">Soft, deep velvet seating aligned before a curated frame, matching slow motion imagery with cold brews.</p>
             </div>
           </div>
 
-          <div class="space-card float-pos-4 interactive">
-            <div class="card-image-wrapper">
-              <img src="social_room.png" alt="The Social Room" class="card-img" />
-              <div class="card-overlay"></div>
+          <!-- Card 3 -->
+          <div class="room-card interactive" id="room-card-3">
+            <div class="room-image-wrapper">
+              <img src="hidden_room.png" alt="The Hidden Room" class="room-img">
+              <div class="room-overlay"></div>
             </div>
-            <div class="card-content">
-              <span class="card-num">04</span>
-              <h3 class="card-title">The Social Room</h3>
-              <p class="card-desc">High-ceiling raw concrete structure hosting conversations, art collection reveals, and the Bengaluru elite.</p>
+            <div class="room-content">
+              <span class="room-num">03</span>
+              <h3 class="room-name">THE HIDDEN ROOM</h3>
+              <p class="room-desc">Accessible only via private invitation. A hidden door reveals an intimate library bar and rare single origins.</p>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="room-card interactive" id="room-card-4">
+            <div class="room-image-wrapper">
+              <img src="social_room.png" alt="The Social Room" class="room-img">
+              <div class="room-overlay"></div>
+            </div>
+            <div class="room-content">
+              <span class="room-num">04</span>
+              <h3 class="room-name">THE SOCIAL ROOM</h3>
+              <p class="room-desc">High-ceiling raw concrete structure hosting conversations, art collection reveals, and the Bengaluru elite.</p>
             </div>
           </div>
 
         </div>
       </div>
-      
-      <div class="drag-hint">
-        <span class="drag-hint-text">DRAG TO DISCOVER</span>
-        <div class="drag-line"></div>
+
+      <!-- Centered Monospace Scroll Helper -->
+      <div class="rooms-scroll-helper">
+        <span class="scroll-helper-text">SCROLL TO REVEAL ———</span>
       </div>
+
     </section>
 
 
