@@ -228,7 +228,7 @@ body {
 }
 
 .loader-counter {
-  font-family: 'Courier New', 'Consolas', monospace;
+  font-family: var(--font-body);
   font-size: 0.55rem;
   letter-spacing: 0.12em;
   color: rgba(250, 248, 245, 0.3);
@@ -864,7 +864,7 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0.35;
 }
 .scroll-helper-text {
-  font-family: monospace;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   letter-spacing: 0.35em;
   color: var(--text-color);
@@ -1531,7 +1531,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .modal-tag {
-  font-family: monospace;
+  font-family: var(--font-body);
   font-size: 0.6rem;
   letter-spacing: 0.3em;
   color: var(--accent-color);
@@ -1747,7 +1747,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-color);
 }
 .portal-subtitle {
-  font-family: monospace;
+  font-family: var(--font-body);
   font-size: 0.62rem;
   letter-spacing: 0.3em;
   color: var(--accent-color);
@@ -1872,7 +1872,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   text-align: center;
   color: rgba(10, 10, 10, 0.3);
-  font-family: monospace;
+  font-family: var(--font-body);
   font-size: 0.58rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -2053,7 +2053,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff;
 }
 .user-id {
-  font-family: monospace;
+  font-family: var(--font-body);
   font-size: 0.55rem;
   letter-spacing: 0.12em; /* Sleek barcode feel */
   text-transform: uppercase;
@@ -2181,7 +2181,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 4px;
 }
 .ticket-label {
-  font-family: monospace;
+  font-family: var(--font-body);
   font-size: 0.55rem;
   letter-spacing: 0.15em;
   color: var(--accent-color);
@@ -2230,7 +2230,7 @@ h1, h2, h3, h4, h5, h6 {
   display: block;
 }
 .ticket-pass-id {
-  font-family: monospace;
+  font-family: var(--font-body);
   font-size: 0.52rem;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.4);
@@ -2239,7 +2239,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-ticket-cancel {
   background: transparent;
   border: none;
-  font-family: monospace;
+  font-family: var(--font-body);
   font-size: 0.55rem;
   letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.35);
