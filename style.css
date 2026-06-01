@@ -1768,11 +1768,11 @@ h1, h2, h3, h4, h5, h6 {
   border: none;
   padding: 12px;
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.22em; /* Sleeker letter-spacing */
   text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.4);
+  color: rgba(10, 10, 10, 0.45);
   border-radius: 26px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1795,13 +1795,13 @@ h1, h2, h3, h4, h5, h6 {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px; /* Tighter typography coupling */
 }
 .form-group label {
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em; /* Spaced out labels */
   text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.6);
+  color: rgba(10, 10, 10, 0.55);
   font-weight: 500;
 }
 .form-group input,
@@ -1958,11 +1958,14 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--bg-color);
   border: 1px solid rgba(10, 10, 10, 0.08);
   border-radius: 8px;
-  padding: 16px 20px;
+  padding: 18px 20px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center; /* Beautiful central alignment */
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .chamber-option:hover {
@@ -1993,7 +1996,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .booking-grid-two {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: repeat(2, 1fr); /* Clean symmetry */
   gap: 20px;
 }
 
@@ -2051,9 +2054,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 .user-id {
   font-family: monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em; /* Sleek barcode feel */
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 4px;
 }
 .user-badge-tier {
   font-family: var(--font-body);
@@ -2200,9 +2205,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 .ticket-meta-val {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em; /* Clean letter-spacing */
+  text-transform: uppercase; /* Cohesive visual stamp */
 }
 
 /* Simulated QR Code Canvas element */
