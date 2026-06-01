@@ -5,7 +5,7 @@
 
 /* Core CSS Variables */
 :root {
-  --bg-color: #FAF8F5; /* Warm off-white core background */
+  --bg-color: #F2F0ED; /* Light warm grey core background */
   --text-color: #0A0A0A; /* Rich near-black typography */
   --accent-color: #B8AD9A; /* Stone Beige */
   --surface-color: #F2F0ED; /* Light warm grey surfaces */
@@ -51,7 +51,7 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF8F5;
+  background: #F2F0ED;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--accent-color);
@@ -454,7 +454,7 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   width: 100vw;
   z-index: 999;
-  background: linear-gradient(to bottom, rgba(250, 248, 245, 0.85) 0%, rgba(250, 248, 245, 0) 100%);
+  background: linear-gradient(to bottom, rgba(242, 240, 237, 0.85) 0%, rgba(242, 240, 237, 0) 100%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(10, 10, 10, 0.05);
@@ -521,7 +521,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--text-color);
   color: var(--bg-color);
   border-color: var(--text-color);
-  box-shadow: 0 4px 20px rgba(250, 248, 245, 0.15);
+  box-shadow: 0 4px 20px rgba(242, 240, 237, 0.15);
 }
 
 /* HERO 3D CANVAS SCROLL CONTAINER (300vh total height for scroll control) */
@@ -556,8 +556,8 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, rgba(250, 248, 245, 0.05) 0%, rgba(250, 248, 245, 0.6) 90%),
-              linear-gradient(to bottom, rgba(250, 248, 245, 0.1) 0%, rgba(250, 248, 245, 0.7) 100%);
+  background: radial-gradient(circle at center, rgba(242, 240, 237, 0.05) 0%, rgba(242, 240, 237, 0.6) 90%),
+              linear-gradient(to bottom, rgba(242, 240, 237, 0.1) 0%, rgba(242, 240, 237, 0.7) 100%);
   z-index: 2;
   pointer-events: none;
 }
@@ -1559,7 +1559,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 2.2rem;
   background: transparent;
   border: none;
-  color: rgba(250, 248, 245, 0.4);
+  color: rgba(242, 240, 237, 0.4);
   cursor: pointer;
   line-height: 0.5;
   transition: color 0.3s ease;
@@ -1594,7 +1594,7 @@ h1, h2, h3, h4, h5, h6 {
 .modal-sub {
   font-size: 0.75rem;
   line-height: 1.6;
-  color: rgba(250, 248, 245, 0.45);
+  color: rgba(242, 240, 237, 0.45);
 }
 
 .modal-form {
@@ -1613,14 +1613,14 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.58rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(250, 248, 245, 0.6);
+  color: rgba(242, 240, 237, 0.6);
   font-weight: 500;
 }
 
 .form-group input,
 .form-group textarea {
   background-color: #060606;
-  border: 1px solid rgba(250, 248, 245, 0.08);
+  border: 1px solid rgba(242, 240, 237, 0.08);
   border-radius: 4px;
   padding: 12px 16px;
   color: var(--text-color);
@@ -1702,7 +1702,7 @@ h1, h2, h3, h4, h5, h6 {
 .modal-success-msg p {
   font-size: 0.8rem;
   line-height: 1.7;
-  color: rgba(250, 248, 245, 0.55);
+  color: rgba(242, 240, 237, 0.55);
 }
 
 /* ==========================================================================

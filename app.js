@@ -10,6 +10,12 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // Force scroll to top on every page load / reload
+  window.scrollTo(0, 0);
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
   // Global DOM Queries (Declared at top to prevent TDZ ReferenceErrors)
   const canvas3D = document.getElementById('canvas-3d');
   const heroSection = document.getElementById('hero');
