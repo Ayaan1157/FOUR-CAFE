@@ -190,7 +190,7 @@ body {
 }
 
 .identity-logo {
-  font-family: 'Cormorant Garamond', 'DM Serif Display', Georgia, serif;
+  font-family: var(--font-serif);
   font-weight: 300;
   font-size: clamp(3.2rem, 6vw, 5.5rem);
   color: #FAF8F5;

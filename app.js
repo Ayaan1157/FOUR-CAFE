@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Montserrat-styled vector lettering drawn with 8K subpixel accuracy
   // "4" on the left
-  ctx.font = '500 480px sans-serif';
+  ctx.font = '500 480px Montserrat, sans-serif';
   ctx.textAlign = 'right';
   ctx.fillText('4', 760, 1040);
   
@@ -263,12 +263,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   // "UR" on the right
-  ctx.font = '500 480px sans-serif';
+  ctx.font = '500 480px Montserrat, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('UR', 1320, 1040);
   
   // "C A F E" underneath with tracking gaps
-  ctx.font = '300 140px sans-serif';
+  ctx.font = '300 140px Montserrat, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('C  A  F  E', 1024, 1300);
 
