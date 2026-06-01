@@ -644,7 +644,598 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(tick);
   }
 
-
   requestAnimationFrame(tick);
+
+
+  // ==========================================================================
+  // 12. PRIVATE MEMBERS & SEAT RESERVATION SYSTEM ENGINE
+  // ==========================================================================
+  
+  // A. Toast Notifications System
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    
+    // Trigger GPU-accelerated enter animation
+    requestAnimationFrame(() => toast.classList.add('reveal'));
+    
+    // Auto dismissal
+    setTimeout(() => {
+      toast.classList.remove('reveal');
+      setTimeout(() => toast.remove(), 500);
+    }, 4000);
+  }
+
+  // B. State Management Variables
+  let currentUser = JSON.parse(localStorage.getItem('four_cafe_user')) || null;
+  let selectedChamber = 1;
+  let selectedTimeSlot = '';
+
+  const portalOverlay = document.getElementById('portal-overlay');
+  const portalClose = document.getElementById('portal-close');
+  
+  const viewAuth = document.getElementById('portal-view-auth');
+  const viewBooking = document.getElementById('portal-view-booking');
+  const viewDashboard = document.getElementById('portal-view-dashboard');
+
+  const tabLogin = document.getElementById('btn-tab-login');
+  const tabSignup = document.getElementById('btn-tab-signup');
+  const formLogin = document.getElementById('form-login');
+  const formSignup = document.getElementById('form-signup');
+
+  // C. Visual QR Code Procedural Generator (8K Canvas Vector feel)
+  function drawSimulatedQRCode(canvas, text) {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = 120;
+    canvas.height = 120;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 120, 120);
+    
+    ctx.fillStyle = '#0A0A0A';
+    // Top-Left corner marker
+    ctx.fillRect(8, 8, 28, 28);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(12, 12, 20, 20);
+    ctx.fillStyle = '#0A0A0A';
+    ctx.fillRect(16, 16, 12, 12);
+    
+    // Top-Right corner marker
+    ctx.fillRect(84, 8, 28, 28);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(88, 12, 20, 20);
+    ctx.fillStyle = '#0A0A0A';
+    ctx.fillRect(92, 16, 12, 12);
+    
+    // Bottom-Left corner marker
+    ctx.fillRect(8, 84, 28, 28);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(12, 88, 20, 20);
+    ctx.fillStyle = '#0A0A0A';
+    ctx.fillRect(16, 92, 12, 12);
+    
+    // Draw some random gold-beige accent data blocks in the middle
+    ctx.fillStyle = '#B8AD9A';
+    for (let x = 40; x < 80; x += 6) {
+      for (let y = 40; y < 80; y += 6) {
+        if (Math.random() > 0.4) {
+          ctx.fillRect(x, y, 4, 4);
+        }
+      }
+    }
+    
+    // Draw standard dark data blocks elsewhere
+    ctx.fillStyle = '#0A0A0A';
+    for (let x = 8; x < 112; x += 6) {
+      for (let y = 8; y < 112; y += 6) {
+        // Skip marker bounds
+        if (x < 40 && y < 40) continue;
+        if (x > 80 && y < 40) continue;
+        if (x < 40 && y > 80) continue;
+        // Skip center accent blocks
+        if (x >= 40 && x < 80 && y >= 40 && y < 80) continue;
+        
+        if (Math.random() > 0.5) {
+          ctx.fillRect(x, y, 4, 4);
+        }
+      }
+    }
+  }
+
+  // D. Staggered Dashboard Render
+  const chambers = {
+    1: 'The Quiet Room',
+    2: 'The Cinematic Room',
+    3: 'The Hidden Room',
+    4: 'The Social Room'
+  };
+
+  function renderDashboard() {
+    if (!currentUser) return;
+    
+    // Update Profile metadata
+    const welcomeText = document.getElementById('dash-welcome');
+    const memberIdText = document.getElementById('dash-member-id');
+    const badgeTier = document.getElementById('dash-badge-tier');
+    const bookingsList = document.getElementById('bookings-list');
+
+    if (welcomeText) welcomeText.textContent = `Welcome, ${currentUser.name}`;
+    if (memberIdText) memberIdText.textContent = `MEMBER ID: ${currentUser.email.split('@')[0].toUpperCase()}-${currentUser.phone || '9045'}`;
+    if (badgeTier) {
+      badgeTier.textContent = currentUser.tier || 'Tier I';
+      // Invert badges based on tiers for premium look
+      badgeTier.className = `user-badge-tier tier-${(currentUser.tier || 'Tier I').replace(' ', '-').toLowerCase()}`;
+    }
+
+    if (!bookingsList) return;
+    bookingsList.innerHTML = '';
+
+    const userBookings = currentUser.bookings || [];
+
+    if (userBookings.length === 0) {
+      bookingsList.innerHTML = `
+        <div class="dash-empty-state">
+          <span>You have no active seat reservations in the universe.</span>
+          <button id="btn-empty-book" class="interactive">Secure a Seat Now</button>
+        </div>
+      `;
+      
+      const btnEmptyBook = document.getElementById('btn-empty-book');
+      if (btnEmptyBook) {
+        btnEmptyBook.addEventListener('click', () => {
+          showView('booking');
+        });
+      }
+      return;
+    }
+
+    // Render active reservations list
+    userBookings.forEach((booking, idx) => {
+      const ticket = document.createElement('div');
+      ticket.className = 'holographic-ticket interactive';
+      ticket.style.animationDelay = `${idx * 0.1}s`;
+      
+      ticket.innerHTML = `
+        <div class="ticket-details">
+          <div class="ticket-header">
+            <span class="ticket-label">// EXCLUSIVE CHAMBER PASS</span>
+            <span class="ticket-chamber-title">${chambers[booking.chamber] || 'Chamber Vault'}</span>
+          </div>
+          <div class="ticket-grid">
+            <div class="ticket-meta-item">
+              <span class="ticket-label">DATE</span>
+              <span class="ticket-meta-val">${booking.date}</span>
+            </div>
+            <div class="ticket-meta-item">
+              <span class="ticket-label">TIME SLOT</span>
+              <span class="ticket-meta-val">${booking.time}</span>
+            </div>
+            <div class="ticket-meta-item">
+              <span class="ticket-label">GUESTS</span>
+              <span class="ticket-meta-val">${booking.guests} Seat${booking.guests > 1 ? 's' : ''}</span>
+            </div>
+            <div class="ticket-meta-item">
+              <span class="ticket-label">BOOKING ID</span>
+              <span class="ticket-meta-val">${booking.id}</span>
+            </div>
+          </div>
+          <button class="btn-ticket-cancel interactive" data-id="${booking.id}">Cancel Reservation</button>
+        </div>
+        <div class="ticket-qr-container">
+          <canvas class="qr-canvas"></canvas>
+          <span class="ticket-pass-id">${booking.passId}</span>
+        </div>
+      `;
+
+      bookingsList.appendChild(ticket);
+
+      // Render custom canvas QR Code immediately
+      const qrCanvas = ticket.querySelector('.qr-canvas');
+      drawSimulatedQRCode(qrCanvas, booking.id);
+
+      // Setup Cancel Action handler
+      const cancelBtn = ticket.querySelector('.btn-ticket-cancel');
+      cancelBtn.addEventListener('click', () => {
+        currentUser.bookings = currentUser.bookings.filter(b => b.id !== booking.id);
+        
+        // Update user state in localStorage database
+        localStorage.setItem('user_' + currentUser.email, JSON.stringify(currentUser));
+        localStorage.setItem('four_cafe_user', JSON.stringify(currentUser));
+        
+        showToast('Reservation successfully canceled', 'error');
+        renderDashboard();
+      });
+    });
+  }
+
+  // E. View Switcher controller
+  function showView(viewName) {
+    viewAuth.classList.remove('active');
+    viewBooking.classList.remove('active');
+    viewDashboard.classList.remove('active');
+
+    if (viewName === 'auth') {
+      viewAuth.classList.add('active');
+    } else if (viewName === 'booking') {
+      viewBooking.classList.add('active');
+      
+      // Auto pre-populate date picker to tomorrow for user comfort
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const bookingDateInput = document.getElementById('booking-date');
+      if (bookingDateInput && !bookingDateInput.value) {
+        bookingDateInput.value = tomorrow.toISOString().split('T')[0];
+        // Enforce tomorrow as minimum booking date (exclusivity rules!)
+        bookingDateInput.min = tomorrow.toISOString().split('T')[0];
+      }
+    } else if (viewName === 'dashboard') {
+      viewDashboard.classList.add('active');
+      renderDashboard();
+    }
+  }
+
+  // F. Google Authentication Popup window simulator
+  function openGoogleAuthPopup() {
+    const w = 450, h = 570;
+    const left = (window.screen.width - w) / 2;
+    const top = (window.screen.height - h) / 2;
+    const popup = window.open('', 'GoogleSignIn', `width=${w},height=${h},top=${top},left=${left},resizable=yes`);
+    
+    if (!popup) {
+      showToast('Popup blocker active. Please allow popups to connect with Google.', 'error');
+      return;
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>Sign in - Google Accounts</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+        <style>
+          body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #202124; margin: 0; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: calc(100vh - 80px); box-sizing: border-box; }
+          .logo { height: 32px; margin-bottom: 24px; }
+          .title { font-size: 24px; font-weight: 400; margin-bottom: 8px; text-align: center; }
+          .sub { font-size: 16px; color: #5f6368; margin-bottom: 35px; text-align: center; }
+          .accounts-list { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
+          .account-chip { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #dadce0; border-radius: 8px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+          .account-chip:hover { background-color: #f8f9fa; border-color: #4285f4; }
+          .avatar { width: 36px; height: 36px; border-radius: 50%; background-color: #b8ad9a; color: #ffffff; font-weight: 500; display: flex; align-items: center; justify-content: center; font-size: 16px; text-transform: uppercase; }
+          .avatar.am { background-color: #3f51b5; }
+          .avatar.ad { background-color: #009688; }
+          .details { display: flex; flex-direction: column; text-align: left; }
+          .name { font-size: 14px; font-weight: 500; }
+          .email { font-size: 12px; color: #5f6368; }
+          .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4285f4; border-radius: 50%; width: 28px; height: 28px; animation: spin 1s linear infinite; margin-top: 40px; display: none; }
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        </style>
+      </head>
+      <body>
+        <svg class="logo" viewBox="0 0 24 24" width="75" height="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+        </svg>
+        <div class="title">Choose an account</div>
+        <div class="sub">to continue to 4 ≡ UR CAFÉ</div>
+        <div class="accounts-list" id="list">
+          <div class="account-chip" data-name="Ayaan Mohammed" data-email="ayaan.m@gmail.com" data-phone="3023">
+            <div class="avatar am">AM</div>
+            <div class="details">
+              <span class="name">Ayaan Mohammed</span>
+              <span class="email">ayaan.m@gmail.com</span>
+            </div>
+          </div>
+          <div class="account-chip" data-name="Ayaaa Design" data-email="ayaaa@design.com" data-phone="9912">
+            <div class="avatar ad">A</div>
+            <div class="details">
+              <span class="name">Ayaaa Design</span>
+              <span class="email">ayaaa@design.com</span>
+            </div>
+          </div>
+        </div>
+        <div class="loader" id="loader"></div>
+        <script>
+          document.querySelectorAll('.account-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+              document.getElementById('list').style.display = 'none';
+              document.getElementById('loader').style.display = 'block';
+              document.querySelector('.title').textContent = 'Connecting...';
+              document.querySelector('.sub').textContent = 'Securing private session keys';
+              
+              setTimeout(() => {
+                window.opener.postMessage({
+                  type: 'GOOGLE_AUTH_SUCCESS',
+                  name: chip.getAttribute('data-name'),
+                  email: chip.getAttribute('data-email'),
+                  phone: chip.getAttribute('data-phone')
+                }, '*');
+                window.close();
+              }, 1200);
+            });
+          });
+        </script>
+      </body>
+      </html>
+    `;
+    popup.document.open();
+    popup.document.write(html);
+    popup.document.close();
+  }
+
+  // G. Auth Event Handlers
+  window.addEventListener('message', (e) => {
+    const data = e.data;
+    if (data && data.type === 'GOOGLE_AUTH_SUCCESS') {
+      let user = JSON.parse(localStorage.getItem('user_' + data.email));
+      if (!user) {
+        // Create simulated user database record
+        user = {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          bookings: [],
+          tier: 'Tier I'
+        };
+        localStorage.setItem('user_' + data.email, JSON.stringify(user));
+      }
+      
+      currentUser = user;
+      localStorage.setItem('four_cafe_user', JSON.stringify(currentUser));
+      
+      showToast(`Welcome back, ${currentUser.name}!`, 'success');
+      showView('booking');
+    }
+  });
+
+  // Login form submit
+  if (formLogin) {
+    formLogin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-password').value;
+
+      const user = JSON.parse(localStorage.getItem('user_' + email));
+      if (user && pass.length >= 4) {
+        currentUser = user;
+        localStorage.setItem('four_cafe_user', JSON.stringify(currentUser));
+        
+        showToast('Passkey verified successfully!', 'success');
+        showView('booking');
+        
+        // Reset fields
+        formLogin.reset();
+      } else {
+        showToast('Invalid member credentials', 'error');
+      }
+    });
+  }
+
+  // Signup form submit
+  if (formSignup) {
+    formSignup.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const pass = document.getElementById('signup-password').value;
+
+      if (pass.length < 4) {
+        showToast('Password must be at least 4 digits', 'error');
+        return;
+      }
+
+      const existingUser = localStorage.getItem('user_' + email);
+      if (existingUser) {
+        showToast('Email address already registered', 'error');
+        return;
+      }
+
+      // Create new user record
+      const newUser = {
+        name,
+        email,
+        phone: Math.floor(1000 + Math.random() * 9000).toString(),
+        bookings: [],
+        tier: 'Tier I'
+      };
+      
+      localStorage.setItem('user_' + email, JSON.stringify(newUser));
+      currentUser = newUser;
+      localStorage.setItem('four_cafe_user', JSON.stringify(currentUser));
+
+      showToast('Membership credentials created successfully!', 'success');
+      showView('booking');
+      
+      formSignup.reset();
+    });
+  }
+
+  // Tabs togglers
+  if (tabLogin && tabSignup) {
+    tabLogin.addEventListener('click', () => {
+      tabLogin.classList.add('active');
+      tabSignup.classList.remove('active');
+      formLogin.classList.add('active');
+      formSignup.classList.remove('active');
+    });
+
+    tabSignup.addEventListener('click', () => {
+      tabSignup.classList.add('active');
+      tabLogin.classList.remove('active');
+      formSignup.classList.add('active');
+      formLogin.classList.remove('active');
+    });
+  }
+
+  const btnGoogle = document.getElementById('btn-google-login');
+  if (btnGoogle) {
+    btnGoogle.addEventListener('click', () => {
+      openGoogleAuthPopup();
+    });
+  }
+
+  // H. Seat Reservation Logic
+  const chamberOptions = document.querySelectorAll('.chamber-option');
+  chamberOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+      chamberOptions.forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      selectedChamber = parseInt(opt.getAttribute('data-chamber'));
+    });
+  });
+
+  const timeChips = document.querySelectorAll('.time-chip');
+  timeChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      timeChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedTimeSlot = chip.getAttribute('data-time');
+    });
+  });
+
+  const btnConfirmBooking = document.getElementById('btn-confirm-booking');
+  if (btnConfirmBooking) {
+    btnConfirmBooking.addEventListener('click', () => {
+      if (!currentUser) {
+        showToast('Please log in to complete reservation', 'error');
+        showView('auth');
+        return;
+      }
+
+      const bookingDate = document.getElementById('booking-date').value;
+      const bookingGuests = document.getElementById('booking-guests').value;
+
+      if (!bookingDate) {
+        showToast('Please select a booking date', 'error');
+        return;
+      }
+      if (!selectedTimeSlot) {
+        showToast('Please select a time slot', 'error');
+        return;
+      }
+
+      // Exclusivity rule validation: prevent double booking on the same day/slot combo
+      const hasDoubleBooking = currentUser.bookings.some(b => b.date === bookingDate && b.time === selectedTimeSlot);
+      if (hasDoubleBooking) {
+        showToast('You already hold a seat reservation for this slot!', 'error');
+        return;
+      }
+
+      // Create new booking pass
+      const newBooking = {
+        id: 'RES-4UR-' + Math.floor(1000 + Math.random() * 9000),
+        chamber: selectedChamber,
+        date: bookingDate,
+        time: selectedTimeSlot,
+        guests: bookingGuests,
+        passId: 'PASS-' + Math.floor(100000 + Math.random() * 900000)
+      };
+
+      // Save reservation
+      currentUser.bookings.unshift(newBooking);
+      localStorage.setItem('user_' + currentUser.email, JSON.stringify(currentUser));
+      localStorage.setItem('four_cafe_user', JSON.stringify(currentUser));
+
+      showToast(`Chamber seat booked for ${bookingDate}!`, 'success');
+      showView('dashboard');
+    });
+  }
+
+  // Dashboard buttons
+  const btnDashNewBooking = document.getElementById('btn-dash-new-booking');
+  if (btnDashNewBooking) {
+    btnDashNewBooking.addEventListener('click', () => {
+      showView('booking');
+    });
+  }
+
+  const btnToDashboard = document.getElementById('btn-to-dashboard');
+  if (btnToDashboard) {
+    btnToDashboard.addEventListener('click', () => {
+      showView('dashboard');
+    });
+  }
+
+  const btnDashLogout = document.getElementById('btn-dash-logout');
+  if (btnDashLogout) {
+    btnDashLogout.addEventListener('click', () => {
+      currentUser = null;
+      localStorage.removeItem('four_cafe_user');
+      showToast('Logged out of private member session', 'success');
+      showView('auth');
+    });
+  }
+
+  // I. Modal Trigger Controls & Hooks
+  const openPortal = (tierPreset = null) => {
+    if (portalOverlay) {
+      portalOverlay.classList.add('active');
+      
+      if (currentUser) {
+        // Apply preset tier if user exists
+        if (tierPreset) {
+          currentUser.tier = tierPreset;
+          localStorage.setItem('user_' + currentUser.email, JSON.stringify(currentUser));
+          localStorage.setItem('four_cafe_user', JSON.stringify(currentUser));
+        }
+        showView('booking');
+      } else {
+        showView('auth');
+      }
+    }
+  };
+
+  const closePortal = () => {
+    if (portalOverlay) {
+      portalOverlay.classList.remove('active');
+    }
+  };
+
+  if (portalClose) {
+    portalClose.addEventListener('click', () => {
+      closePortal();
+    });
+  }
+
+  // Hook all interactive booking and reservation buttons on the landing page
+  // 1. Header CTA button
+  const headerCTA = document.querySelector('.btn-minimal');
+  if (headerCTA) {
+    headerCTA.addEventListener('click', (e) => {
+      e.preventDefault();
+      openPortal();
+    });
+  }
+
+  // 2. Membership Tier applied cards triggers
+  const tierCards = document.querySelectorAll('.member-card');
+  const tiers = ['Tier I', 'Tier II', 'Tier III'];
+  
+  tierCards.forEach((card, idx) => {
+    const applyBtn = card.querySelector('.btn-tier');
+    if (applyBtn) {
+      applyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Auto-select chamber matching membership tier focus dynamically
+        // Tier 1 -> Chamber 1 (Quiet Room), Tier 2 -> Chamber 2 (Cinematic), Tier 3 -> Chamber 3 (Hidden)
+        selectedChamber = idx + 1;
+        
+        const matchingChamberOpt = document.querySelector(`.chamber-option[data-chamber="${selectedChamber}"]`);
+        if (matchingChamberOpt) {
+          chamberOptions.forEach(o => o.classList.remove('active'));
+          matchingChamberOpt.classList.add('active');
+        }
+
+        openPortal(tiers[idx]);
+      });
+    }
+  });
 
 });

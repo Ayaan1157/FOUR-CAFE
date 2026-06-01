@@ -411,6 +411,166 @@
 
   </main>
 
+  <!-- ==========================================================================
+     PRIVATE MEMBERS & RESERVATION PORTAL MODAL
+     ========================================================================== -->
+  <div class="portal-overlay" id="portal-overlay">
+    <div class="portal-card interactive">
+      
+      <!-- Close Button -->
+      <button class="portal-close interactive" id="portal-close" aria-label="Close Portal">&times;</button>
+      
+      <!-- Logo Header -->
+      <div class="portal-header">
+        <div class="logo logo-portal">
+          4<span class="o-lines"><span></span><span></span><span></span><span></span></span>UR
+        </div>
+        <span class="portal-subtitle">// PRIVATE MEMBER PORTAL</span>
+      </div>
+
+      <!-- VIEW 1: AUTHENTICATION (LOGIN / SIGNUP) -->
+      <div class="portal-view active" id="portal-view-auth">
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active interactive" id="btn-tab-login">Sign In</button>
+          <button class="auth-tab-btn interactive" id="btn-tab-signup">Register</button>
+        </div>
+        
+        <!-- Login Form -->
+        <form class="auth-form active" id="form-login">
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input type="email" id="login-email" required placeholder="name@domain.com" class="interactive">
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" required placeholder="••••••••" class="interactive">
+          </div>
+          <button type="submit" class="btn-portal-submit interactive">Authenticate Pass</button>
+        </form>
+
+        <!-- Signup Form -->
+        <form class="auth-form" id="form-signup">
+          <div class="form-group">
+            <label for="signup-name">Full Name</label>
+            <input type="text" id="signup-name" required placeholder="Ayaan Mohammed" class="interactive">
+          </div>
+          <div class="form-group">
+            <label for="signup-email">Email Address</label>
+            <input type="email" id="signup-email" required placeholder="name@domain.com" class="interactive">
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Password</label>
+            <input type="password" id="signup-password" required placeholder="••••••••" class="interactive">
+          </div>
+          <button type="submit" class="btn-portal-submit interactive">Create Member Account</button>
+        </form>
+
+        <div class="auth-divider">
+          <span>or connect via</span>
+        </div>
+
+        <!-- Google Auth Trigger Button -->
+        <button class="btn-google-auth interactive" id="btn-google-login">
+          <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        </button>
+      </div>
+
+      <!-- VIEW 2: SEAT RESERVATION -->
+      <div class="portal-view" id="portal-view-booking">
+        <div class="booking-section-title">RESERVE A SEAT</div>
+        
+        <!-- Step 1: Select Chamber -->
+        <div class="booking-group">
+          <label>1. Select Chamber</label>
+          <div class="chamber-grid">
+            <div class="chamber-option active interactive" data-chamber="1">
+              <span class="chamber-num">01</span>
+              <span class="chamber-name">Quiet Room</span>
+            </div>
+            <div class="chamber-option interactive" data-chamber="2">
+              <span class="chamber-num">02</span>
+              <span class="chamber-name">Cinematic</span>
+            </div>
+            <div class="chamber-option interactive" data-chamber="3">
+              <span class="chamber-num">03</span>
+              <span class="chamber-name">Hidden Vault</span>
+            </div>
+            <div class="chamber-option interactive" data-chamber="4">
+              <span class="chamber-num">04</span>
+              <span class="chamber-name">Social Hall</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Date & Time -->
+        <div class="booking-grid-two">
+          <div class="booking-group">
+            <label for="booking-date">2. Select Date</label>
+            <input type="date" id="booking-date" required class="interactive">
+          </div>
+          <div class="booking-group">
+            <label for="booking-guests">3. Guest Count (Max 4)</label>
+            <select id="booking-guests" class="interactive">
+              <option value="1">1 Seat (Solo Exclusivity)</option>
+              <option value="2">2 Seats (Private Dialogue)</option>
+              <option value="3">3 Seats (Curated Collective)</option>
+              <option value="4">4 Seats (Founding Retreat)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Step 3: Time Slot Chips -->
+        <div class="booking-group">
+          <label>4. Select Time Slot</label>
+          <div class="time-slots-container" id="time-slots">
+            <button class="time-chip interactive" data-time="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</button>
+            <button class="time-chip interactive" data-time="12:00 PM - 02:00 PM">12:00 PM - 02:00 PM</button>
+            <button class="time-chip interactive" data-time="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</button>
+            <button class="time-chip interactive" data-time="08:00 PM - 10:00 PM">08:00 PM - 10:00 PM</button>
+          </div>
+        </div>
+
+        <button class="btn-portal-submit interactive" id="btn-confirm-booking">Confirm Seat Reservation</button>
+        <button class="btn-portal-secondary interactive" id="btn-to-dashboard">Go to Member Dashboard</button>
+      </div>
+
+      <!-- VIEW 3: MEMBER DASHBOARD -->
+      <div class="portal-view" id="portal-view-dashboard">
+        <div class="dashboard-user-bar">
+          <div class="user-meta">
+            <span class="user-welcome" id="dash-welcome">Welcome, Member</span>
+            <span class="user-id" id="dash-member-id">ID: 4UR-8809-214</span>
+          </div>
+          <span class="user-badge-tier" id="dash-badge-tier">Tier I</span>
+        </div>
+
+        <div class="dashboard-section-header">
+          <span>Active Reservations</span>
+          <button class="btn-dash-action interactive" id="btn-dash-new-booking">+ Book Seat</button>
+        </div>
+
+        <!-- Reservations List -->
+        <div class="dashboard-bookings-list" id="bookings-list">
+          <!-- Active reservation cards or empty state injected here -->
+        </div>
+
+        <div class="dashboard-footer">
+          <button class="btn-portal-secondary interactive" id="btn-dash-logout">Sign Out</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification System Container -->
+  <div class="toast-container" id="toast-container"></div>
+
   <!-- WebGL Three.js Library (Local for absolute reliability) -->
   <script src="three.min.js"></script>
   <!-- Lottie Web Animation Library (Local for absolute reliability) -->
