@@ -404,12 +404,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateRoomCardStacking() {
     if (!roomCards.length) return;
     
+    const isMobile = window.innerWidth <= 768;
+    const stickyTop = isMobile ? 15 : 20; // Matches CSS top: 20px / 15px
+    const viewportHeight = window.innerHeight;
+    
     roomCards.forEach((card, index) => {
       const rect = card.getBoundingClientRect();
       const cardTop = rect.top;
-      
-      // All cards pin/stack at 15vh (window.innerHeight * 0.15)
-      const stickyTop = window.innerHeight * 0.15;
       
       if (cardTop <= stickyTop + 2) {
         // Track the next card to calculate how much it has overlapped the current card
@@ -418,14 +419,14 @@ document.addEventListener('DOMContentLoaded', () => {
           const nextRect = nextCard.getBoundingClientRect();
           const distance = nextRect.top - stickyTop;
           
-          // Total scroll distance until fully stacked (card height 440px + gap 120px)
-          const overlapRange = 560; 
+          // Dynamic scroll range until next card is fully stacked (100vh + gap)
+          const overlapRange = viewportHeight + (isMobile ? 80 : 120); 
           const progress = Math.max(0, Math.min(1, 1 - (distance / overlapRange)));
           
           // Dynamic editorial deck-stacking parameters
           const scale = 1 - (progress * 0.05); // Gently scale down to 0.95
           const brightness = 1 - (progress * 0.45); // Darken down to 0.55
-          const translateY = -progress * 16; // Subtle lift
+          const translateY = -progress * 20; // Subtle lift
           
           card.style.transform = `scale(${scale}) translateY(${translateY}px)`;
           card.style.filter = `brightness(${brightness})`;
