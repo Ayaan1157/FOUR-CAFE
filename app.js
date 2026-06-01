@@ -299,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   let targetProgress = 0;
   let currentProgress = 0;
+  let lastProgress = -1;
   const videoLerpSpeed = 0.12; // satisfying lag value requested
 
   // Map progress indices to target 3D positions & rotations (Apple/Oryzo.ai style)
@@ -354,7 +355,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const relativeScroll = window.scrollY - sectionTop;
     const progress = Math.max(0, Math.min(1, relativeScroll / scrollRange));
     targetProgress = progress;
+
+    // Recalculate stacking depth and active scroll items only on scroll
+    updateRoomCardStacking();
+    updateExclusivityIllumination();
   }, { passive: true });
+
+  // Initial render setup on page load
+  window.addEventListener('load', () => {
+    updateRoomCardStacking();
+    updateExclusivityIllumination();
+  });
 
   // Update dynamic staggered text overlays based on progress
   const textGroups = document.querySelectorAll('.text-group');
@@ -582,8 +593,11 @@ document.addEventListener('DOMContentLoaded', () => {
       currentProgress = targetProgress;
     }
     
-    // Update floating texts
-    updateTextOverlays(currentProgress);
+    // ONLY update dynamic DOM text overlays if progress has actually changed to save massive layout thrashes
+    if (currentProgress !== lastProgress) {
+      updateTextOverlays(currentProgress);
+      lastProgress = currentProgress;
+    }
 
     // 11b. Evaluate timeline values
     const cupTimeline = interpolateTimeline(currentProgress);
@@ -616,21 +630,12 @@ document.addEventListener('DOMContentLoaded', () => {
     cupGroup.rotation.y = currentRy + hoverRotY + mouseTiltY * 0.45;
     cupGroup.rotation.z = currentRz;
 
-    // 11c. Update 3D Stacking Cards Reveal Depth on Scroll
-    updateRoomCardStacking();
-
-
-
-    // 11d. Lerp Custom Cursor
+    // 11d. Lerp Custom Cursor (Hardware-Accelerated 3D Transform - no layout reflows!)
     if (cursor && !isTouchDevice) {
       cursorX += (targetCursorX - cursorX) * cursorLerpSpeed;
       cursorY += (targetCursorY - cursorY) * cursorLerpSpeed;
-      cursor.style.top = `${cursorY}px`;
-      cursor.style.left = `${cursorX}px`;
+      cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
     }
-
-    // 11e. List Illumination check on tick
-    updateExclusivityIllumination();
 
     // 11f. Render WebGL frame
     renderer.render(scene, camera);
