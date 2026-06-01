@@ -342,6 +342,40 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // Caching offset measurements to completely eliminate forced layouts (Layout Thrashing)
+  let roomCardOffsets = [];
+  let exclusivityItemOffsets = [];
+
+  function cacheScrollPositions() {
+    roomCardOffsets = [];
+    roomCards.forEach(card => {
+      let top = 0;
+      let el = card;
+      while (el) {
+        top += el.offsetTop;
+        el = el.offsetParent;
+      }
+      roomCardOffsets.push({
+        offsetTop: top,
+        height: card.offsetHeight
+      });
+    });
+
+    exclusivityItemOffsets = [];
+    exclusivityItems.forEach(item => {
+      let top = 0;
+      let el = item;
+      while (el) {
+        top += el.offsetTop;
+        el = el.offsetParent;
+      }
+      exclusivityItemOffsets.push({
+        offsetTop: top,
+        height: item.offsetHeight
+      });
+    });
+  }
+
   // Scroll listener driving progress from 0 to 1 mapped to the section's scroll range
   const heroSection = document.getElementById('hero');
   window.addEventListener('scroll', () => {
@@ -351,25 +385,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionHeight = heroSection.offsetHeight;
     const scrollRange = sectionHeight - window.innerHeight;
     
-    // Relative scrolled distance inside the section bounds
     const relativeScroll = window.scrollY - sectionTop;
-    const progress = Math.max(0, Math.min(1, relativeScroll / scrollRange));
+    let progress = 0;
+    if (scrollRange > 0) {
+      progress = Math.max(0, Math.min(1, relativeScroll / scrollRange));
+    }
+    
+    if (isNaN(progress)) progress = 0;
     targetProgress = progress;
-
-    // Recalculate stacking depth and active scroll items only on scroll
-    updateRoomCardStacking();
-    updateExclusivityIllumination();
   }, { passive: true });
 
-  // Initial render setup on page load
+  // Initial and reactive caching triggers
   window.addEventListener('load', () => {
+    cacheScrollPositions();
     updateRoomCardStacking();
     updateExclusivityIllumination();
   });
+  window.addEventListener('resize', () => {
+    cacheScrollPositions();
+    updateRoomCardStacking();
+    updateExclusivityIllumination();
+  });
+  // Safely recalculate offsets after 1s in case fonts or lazy images shifted layout
+  setTimeout(cacheScrollPositions, 1000);
 
   // Update dynamic staggered text overlays based on progress
   const textGroups = document.querySelectorAll('.text-group');
   function updateTextOverlays(progress) {
+    if (isNaN(progress)) progress = 0;
     textGroups.forEach(group => {
       const rangeAttr = group.getAttribute('data-range');
       if (!rangeAttr) return;
@@ -413,22 +456,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const roomCards = document.querySelectorAll('.room-card');
   
   function updateRoomCardStacking() {
-    if (!roomCards.length) return;
+    if (!roomCards.length || !roomCardOffsets.length) return;
     
     const isMobile = window.innerWidth <= 768;
     const stickyTop = isMobile ? 15 : 20; // Matches CSS top: 20px / 15px
     const viewportHeight = window.innerHeight;
+    const scrollY = window.scrollY;
     
     roomCards.forEach((card, index) => {
-      const rect = card.getBoundingClientRect();
-      const cardTop = rect.top;
+      const cached = roomCardOffsets[index];
+      if (!cached) return;
+      
+      // Calculate top relative to viewport without DOM query
+      const cardTop = Math.max(stickyTop, cached.offsetTop - scrollY);
       
       if (cardTop <= stickyTop + 2) {
         // Track the next card to calculate how much it has overlapped the current card
-        const nextCard = roomCards[index + 1];
-        if (nextCard) {
-          const nextRect = nextCard.getBoundingClientRect();
-          const distance = nextRect.top - stickyTop;
+        const nextCached = roomCardOffsets[index + 1];
+        if (nextCached) {
+          const nextCardTop = nextCached.offsetTop - scrollY;
+          const distance = nextCardTop - stickyTop;
           
           // Dynamic scroll range until next card is fully stacked (100vh + gap of 48vh / 30vh)
           const overlapRange = viewportHeight + viewportHeight * (isMobile ? 0.3 : 0.48); 
@@ -459,10 +506,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const exclusivityItems = document.querySelectorAll('.exclusivity-item');
 
   function updateExclusivityIllumination() {
-    exclusivityItems.forEach(item => {
-      const rect = item.getBoundingClientRect();
-      const elementCenter = rect.top + rect.height / 2;
-      const viewportCenter = window.innerHeight * 0.65;
+    if (!exclusivityItems.length || !exclusivityItemOffsets.length) return;
+    
+    const scrollY = window.scrollY;
+    const viewportCenter = window.innerHeight * 0.65;
+    
+    exclusivityItems.forEach((item, index) => {
+      const cached = exclusivityItemOffsets[index];
+      if (!cached) return;
+      
+      const rectTop = cached.offsetTop - scrollY;
+      const elementCenter = rectTop + cached.height / 2;
       
       if (elementCenter < viewportCenter) {
         item.classList.add('active');
@@ -584,19 +638,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   let currentX = 0, currentY = 0, currentZ = 0;
   let currentRx = 0, currentRy = 0, currentRz = 0;
+  let lastScrollY = -1;
 
   function tick() {
+    // NaN protections
+    if (isNaN(targetProgress)) targetProgress = 0;
+    if (isNaN(currentProgress)) currentProgress = 0;
     
     // 11a. Lerp progress values (Butter smooth)
     currentProgress += (targetProgress - currentProgress) * videoLerpSpeed;
     if (Math.abs(targetProgress - currentProgress) < 0.0001) {
       currentProgress = targetProgress;
     }
+    if (isNaN(currentProgress)) currentProgress = 0;
     
     // ONLY update dynamic DOM text overlays if progress has actually changed to save massive layout thrashes
     if (currentProgress !== lastProgress) {
       updateTextOverlays(currentProgress);
       lastProgress = currentProgress;
+    }
+
+    // High-performance scroll tracking (Run layout updates exactly once per frame, only on scroll change)
+    const scrollY = window.scrollY;
+    if (scrollY !== lastScrollY) {
+      updateRoomCardStacking();
+      updateExclusivityIllumination();
+      lastScrollY = scrollY;
     }
 
     // 11b. Evaluate timeline values
