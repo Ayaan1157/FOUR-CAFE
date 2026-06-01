@@ -5,10 +5,10 @@
 
 /* Core CSS Variables */
 :root {
-  --bg-color: #0A0A0A;
-  --text-color: #FAF8F5;
+  --bg-color: #FAF8F5; /* Warm off-white core background */
+  --text-color: #0A0A0A; /* Rich near-black typography */
   --accent-color: #B8AD9A; /* Stone Beige */
-  --surface-color: #1F1F1F;
+  --surface-color: #F2F0ED; /* Light warm grey surfaces */
   
   --cream-bg: #F2F0ED;
   --cream-text: #0A0A0A;
@@ -50,10 +50,10 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #050505;
+  background: #FAF8F5;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--surface-color);
+  background: var(--accent-color);
   border-radius: 3px;
   transition: background 0.3s ease;
 }
@@ -192,7 +192,7 @@ body {
   font-family: 'Cormorant Garamond', 'DM Serif Display', Georgia, serif;
   font-weight: 300;
   font-size: clamp(3.2rem, 6vw, 5.5rem);
-  color: var(--text-color, #faf8f5);
+  color: #FAF8F5;
   letter-spacing: 0.08em;
   line-height: 1;
   margin: 0;
@@ -278,8 +278,8 @@ body {
   left: 0;
   width: 32px;
   height: 32px;
-  background-color: rgba(250, 248, 245, 0.04); /* Soft translucent ambient base */
-  box-shadow: 0 0 25px 12px rgba(250, 248, 245, 0.06); /* Gorgeous soft blurry shadow halo */
+  background-color: rgba(10, 10, 10, 0.03); /* Soft dark translucent ambient base */
+  box-shadow: 0 0 25px 12px rgba(10, 10, 10, 0.05); /* Gorgeous soft blurry dark shadow halo */
   border-radius: 50%;
   pointer-events: none;
   z-index: 10001;
@@ -294,7 +294,7 @@ body {
   width: 64px;
   height: 64px;
   background-color: rgba(184, 173, 154, 0.08); /* Warm stone-beige tint on hover */
-  box-shadow: 0 0 35px 18px rgba(184, 173, 154, 0.12); /* Expand shadow outline */
+  box-shadow: 0 0 35px 18px rgba(184, 173, 154, 0.18); /* Expand shadow outline */
 }
 
 /* Logo Design: The O replaced by 4 parallel horizontal lines */
@@ -410,10 +410,10 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   width: 100vw;
   z-index: 999;
-  background: linear-gradient(to bottom, rgba(10, 10, 10, 0.8) 0%, rgba(10, 10, 10, 0) 100%);
+  background: linear-gradient(to bottom, rgba(250, 248, 245, 0.85) 0%, rgba(250, 248, 245, 0) 100%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(250, 248, 245, 0.03);
+  border-bottom: 1px solid rgba(10, 10, 10, 0.05);
 }
 .header-inner {
   max-width: 1400px;
@@ -432,7 +432,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.2em;
-  color: rgba(250, 248, 245, 0.6);
+  color: rgba(10, 10, 10, 0.65);
   text-decoration: none;
   text-transform: uppercase;
   transition: color 0.3s ease;
@@ -512,8 +512,8 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, rgba(10, 10, 10, 0.1) 0%, rgba(10, 10, 10, 0.75) 90%),
-              linear-gradient(to bottom, rgba(10, 10, 10, 0.3) 0%, rgba(10, 10, 10, 0.8) 100%);
+  background: radial-gradient(circle at center, rgba(250, 248, 245, 0.05) 0%, rgba(250, 248, 245, 0.6) 90%),
+              linear-gradient(to bottom, rgba(250, 248, 245, 0.1) 0%, rgba(250, 248, 245, 0.7) 100%);
   z-index: 2;
   pointer-events: none;
 }
@@ -715,15 +715,15 @@ h1, h2, h3, h4, h5, h6 {
 .section-subtitle {
   font-size: 0.95rem;
   line-height: 1.8;
-  color: rgba(250, 248, 245, 0.5);
+  color: rgba(10, 10, 10, 0.6);
   max-width: 550px;
 }
 
 /* SECTION 1: THE ROOMS (STICKY STACKING DECK) */
 .section-rooms {
   padding: 120px 0 0 0;
-  background-color: #0c0a09;
-  border-bottom: 1px solid rgba(250, 248, 245, 0.02);
+  background-color: var(--bg-color);
+  border-bottom: 1px solid rgba(10, 10, 10, 0.05);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -741,14 +741,14 @@ h1, h2, h3, h4, h5, h6 {
 .header-line {
   flex: 1;
   height: 1px;
-  background: rgba(240, 235, 227, 0.12);
+  background: rgba(10, 10, 10, 0.1);
   max-width: 180px;
 }
 .rooms-section-title {
   font-family: var(--font-serif);
   font-weight: 300;
   font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-  color: #f0ebe3;
+  color: var(--text-color);
   letter-spacing: 0.18em;
   margin: 0 40px;
   text-transform: uppercase;
@@ -866,7 +866,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: monospace;
   font-size: 0.72rem;
   letter-spacing: 0.35em;
-  color: #f0ebe3;
+  color: var(--text-color);
   text-transform: uppercase;
 }
 
@@ -1060,7 +1060,7 @@ h1, h2, h3, h4, h5, h6 {
 .section-exclusivity {
   padding: 160px 10%;
   background-color: var(--bg-color);
-  border-bottom: 1px solid rgba(250, 248, 245, 0.02);
+  border-bottom: 1px solid rgba(10, 10, 10, 0.05);
 }
 .exclusivity-wrapper {
   max-width: 1200px;
@@ -1090,12 +1090,15 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #1A1A1A; /* Starts very dark */
+  color: rgba(10, 10, 10, 0.15); /* Faded warm grey */
   transition: color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Active State: Illuminated */
 .exclusivity-item.active .exclusivity-word {
+  color: var(--text-color);
+}
+.exclusivity-item:hover .exclusivity-word {
   color: var(--text-color);
 }
 
@@ -1124,14 +1127,14 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   width: 100%;
   height: 1px;
-  background-color: rgba(250, 248, 245, 0.05);
+  background-color: rgba(10, 10, 10, 0.08);
 }
 
 /* SECTION 4: MEMBERSHIP TIERS */
 .section-membership {
   padding: 160px 10%;
   background-color: var(--bg-color);
-  border-bottom: 1px solid rgba(250, 248, 245, 0.02);
+  border-bottom: 1px solid rgba(10, 10, 10, 0.05);
 }
 .center-align {
   text-align: center;
@@ -1160,23 +1163,23 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Membership Card Premium Glassmorphic Design */
 .member-card {
-  background: rgba(31, 31, 31, 0.35);
+  background: rgba(242, 240, 237, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(184, 173, 154, 0.1);
+  border: 1px solid rgba(184, 173, 154, 0.18);
   border-radius: 16px;
   padding: 50px 40px;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 30px 60px rgba(10, 10, 10, 0.05);
   transition: border-color 0.5s ease, transform 0.5s ease, box-shadow 0.5s ease;
   will-change: transform;
 }
 .member-card:hover {
-  border-color: rgba(184, 173, 154, 0.4);
-  box-shadow: 0 40px 80px rgba(184, 173, 154, 0.06);
+  border-color: rgba(184, 173, 154, 0.55);
+  box-shadow: 0 40px 80px rgba(184, 173, 154, 0.18);
 }
 
 .card-tier-glare {
@@ -1185,7 +1188,7 @@ h1, h2, h3, h4, h5, h6 {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(250, 248, 245, 0.05) 0%, rgba(250, 248, 245, 0) 60%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 60%);
   pointer-events: none;
   transform: translate(0, 0);
   transition: transform 0.1s ease;
@@ -1222,12 +1225,12 @@ h1, h2, h3, h4, h5, h6 {
 .price-cycle {
   font-size: 0.8rem;
   letter-spacing: 0.1em;
-  color: rgba(250, 248, 245, 0.4);
+  color: rgba(10, 10, 10, 0.45);
 }
 .tier-desc {
   font-size: 0.8rem;
   line-height: 1.8;
-  color: rgba(250, 248, 245, 0.6);
+  color: rgba(10, 10, 10, 0.65);
   margin-bottom: 35px;
   position: relative;
   z-index: 2;
@@ -1242,18 +1245,18 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 45px;
   position: relative;
   z-index: 2;
-  border-top: 1px solid rgba(250, 248, 245, 0.05);
+  border-top: 1px solid rgba(10, 10, 10, 0.08);
   padding-top: 30px;
 }
 .tier-features li {
   font-size: 0.75rem;
   letter-spacing: 0.05em;
-  color: rgba(250, 248, 245, 0.8);
+  color: rgba(10, 10, 10, 0.85);
   position: relative;
   padding-left: 20px;
 }
 .tier-features li::before {
-  content: 'Â·';
+  content: '·';
   position: absolute;
   left: 0;
   top: -2px;
@@ -1269,7 +1272,7 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: uppercase;
   text-decoration: none;
   text-align: center;
-  border: 1px solid rgba(250, 248, 245, 0.15);
+  border: 1px solid rgba(10, 10, 10, 0.15);
   padding: 16px 0;
   border-radius: 4px;
   color: var(--text-color);
@@ -1282,7 +1285,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--text-color);
   color: var(--bg-color);
   border-color: var(--text-color);
-  box-shadow: 0 10px 30px rgba(250, 248, 245, 0.1);
+  box-shadow: 0 10px 30px rgba(10, 10, 10, 0.08);
 }
 .btn-tier-accent {
   background: var(--accent-color);
@@ -1321,7 +1324,7 @@ h1, h2, h3, h4, h5, h6 {
 .section-closing {
   height: 100vh;
   width: 100vw;
-  background-color: #000000;
+  background-color: var(--bg-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1395,6 +1398,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.6rem;
   letter-spacing: 0.4em;
   font-weight: 500;
+  color: var(--text-color);
 }
 .credit-separator {
   color: var(--accent-color);
