@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 4a. Matte Clay + Outer Clearcoat Glaze Material (Dual-Layer Porcelain Feel)
   const cupMaterial = new THREE.MeshStandardMaterial({
-    color: 0x090909,             // Luxury deep charcoal black
+    color: 0x000000,             // Luxury fully black
     roughness: 0.45,             // Satin clay textured reflection
     metalness: 0.1,              // Dense ceramic core density
     clearcoat: 0.38,             // Shiny transparent top porcelain glaze
