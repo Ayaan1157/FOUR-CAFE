@@ -767,8 +767,8 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0 20px;
   display: flex;
   flex-direction: column;
-  /* Very deliberate card spacing for overlap timing */
-  gap: 120px;
+  /* Increased spacing to slow down the stacking animation */
+  gap: 48vh;
 }
 
 /* Spaces Card Design (Landscape Stacking Deck) */
@@ -901,7 +901,7 @@ h1, h2, h3, h4, h5, h6 {
   }
   .rooms-sticky-stack {
     padding: 0 12px;
-    gap: 80px;
+    gap: 30vh;
   }
 }
 

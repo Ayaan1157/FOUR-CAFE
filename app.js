@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let targetProgress = 0;
   let currentProgress = 0;
   let lastProgress = -1;
-  const videoLerpSpeed = 0.12; // satisfying lag value requested
+  const videoLerpSpeed = 0.05; // Butter-smooth cinematic scrolling inertia
 
   // Map progress indices to target 3D positions & rotations (Apple/Oryzo.ai style)
   const keyframes = [
@@ -430,8 +430,8 @@ document.addEventListener('DOMContentLoaded', () => {
           const nextRect = nextCard.getBoundingClientRect();
           const distance = nextRect.top - stickyTop;
           
-          // Dynamic scroll range until next card is fully stacked (100vh + gap)
-          const overlapRange = viewportHeight + (isMobile ? 80 : 120); 
+          // Dynamic scroll range until next card is fully stacked (100vh + gap of 48vh / 30vh)
+          const overlapRange = viewportHeight + viewportHeight * (isMobile ? 0.3 : 0.48); 
           const progress = Math.max(0, Math.min(1, 1 - (distance / overlapRange)));
           
           // Dynamic editorial deck-stacking parameters
@@ -612,14 +612,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const mouseTiltX = (targetCursorY / window.innerHeight - 0.5) * 0.28;
     const mouseTiltY = (targetCursorX / window.innerWidth - 0.5) * 0.28;
 
-    // Lerp coordinates toward targets to prevent any jarring snap jumps
-    currentX += (cupTimeline.x - currentX) * 0.1;
-    currentY += (cupTimeline.y - currentY) * 0.1;
-    currentZ += (cupTimeline.z - currentZ) * 0.1;
+    // Lerp coordinates toward targets to prevent any jarring snap jumps (Ultra-smooth 0.045 factor)
+    const lerpSpeed = 0.045;
+    currentX += (cupTimeline.x - currentX) * lerpSpeed;
+    currentY += (cupTimeline.y - currentY) * lerpSpeed;
+    currentZ += (cupTimeline.z - currentZ) * lerpSpeed;
     
-    currentRx += (cupTimeline.rx - currentRx) * 0.1;
-    currentRy += (cupTimeline.ry - currentRy) * 0.1;
-    currentRz += (cupTimeline.rz - currentRz) * 0.1;
+    currentRx += (cupTimeline.rx - currentRx) * lerpSpeed;
+    currentRy += (cupTimeline.ry - currentRy) * lerpSpeed;
+    currentRz += (cupTimeline.rz - currentRz) * lerpSpeed;
 
     // Apply translations and rotations (Combine Scroll Matrix + Parallax + Floating Drift)
     cupGroup.position.x = currentX + hoverDriftX + mouseTiltY;
