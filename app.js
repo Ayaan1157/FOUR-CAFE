@@ -117,50 +117,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ==========================================
-  // 3. HYPER-REALISTIC STUDIO LIGHTING RIG
+  // 3. STUDIO LIGHTING RIG (r128-safe, no PMREMGenerator)
   // ==========================================
 
-  // Generate a procedural HDR environment map for true reflections on glossy surfaces
-  const pmremGenerator = new THREE.PMREMGenerator(renderer);
-  pmremGenerator.compileEquirectangularShader();
-
-  // Build a synthetic studio environment with gradient lighting
-  const envScene = new THREE.Scene();
-  const envGeo = new THREE.SphereGeometry(50, 64, 32);
-  const envCanvas = document.createElement('canvas');
-  envCanvas.width = 1024;
-  envCanvas.height = 512;
-  const envCtx = envCanvas.getContext('2d');
-  // Top-down gradient simulating a soft studio HDRI
-  const envGrad = envCtx.createLinearGradient(0, 0, 0, 512);
-  envGrad.addColorStop(0, '#8a8078');    // Warm ceiling
-  envGrad.addColorStop(0.3, '#3d3832'); // Mid tone
-  envGrad.addColorStop(0.5, '#1a1714'); // Horizon shadow
-  envGrad.addColorStop(0.7, '#0d0b0a'); // Floor
-  envGrad.addColorStop(1, '#050403');   // Deep floor
-  envCtx.fillStyle = envGrad;
-  envCtx.fillRect(0, 0, 1024, 512);
-  // Add subtle highlight spots to simulate softboxes
-  envCtx.fillStyle = 'rgba(255, 248, 240, 0.12)';
-  envCtx.beginPath(); envCtx.arc(300, 120, 100, 0, Math.PI * 2); envCtx.fill();
-  envCtx.fillStyle = 'rgba(184, 173, 154, 0.08)';
-  envCtx.beginPath(); envCtx.arc(700, 160, 80, 0, Math.PI * 2); envCtx.fill();
-
-  const envTexture = new THREE.CanvasTexture(envCanvas);
-  envTexture.mapping = THREE.EquirectangularReflectionMapping;
-  const envMat = new THREE.MeshBasicMaterial({ map: envTexture, side: THREE.BackSide });
-  const envMesh = new THREE.Mesh(envGeo, envMat);
-  envScene.add(envMesh);
-  const envMap = pmremGenerator.fromScene(envScene, 0.04).texture;
-  scene.environment = envMap;
-  pmremGenerator.dispose();
-
-  // Ambient fill — very subtle, lets the env map do the heavy lifting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.18);
+  // Ambient fill — warm base glow so black is visible
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
 
-  // Key light — warm, dramatic, top-left (primary specular source)
-  const keyLight = new THREE.DirectionalLight(0xfff5e8, 2.2);
+  // Key light — warm, dramatic top-left (primary specular source for glossy surface)
+  const keyLight = new THREE.DirectionalLight(0xfff5e8, 3.5);
   keyLight.position.set(5, 8, 6);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.width = 2048;
@@ -168,236 +133,200 @@ document.addEventListener('DOMContentLoaded', () => {
   keyLight.shadow.bias = -0.0003;
   scene.add(keyLight);
 
-  // Rim backlight — cool stone-beige edge catch for silhouette separation
-  const backlight = new THREE.DirectionalLight(0xb8ad9a, 1.8);
+  // Rim backlight — stone-beige edge catchlight for silhouette separation
+  const backlight = new THREE.DirectionalLight(0xb8ad9a, 2.5);
   backlight.position.set(-5, 4, -6);
   scene.add(backlight);
 
-  // Subtle bottom bounce fill — simulates table reflection
-  const uplight = new THREE.DirectionalLight(0x9e9589, 0.25);
+  // Front fill — ensures no part of cup is fully invisible
+  const frontFill = new THREE.DirectionalLight(0xffffff, 1.2);
+  frontFill.position.set(0, 2, 8);
+  scene.add(frontFill);
+
+  // Bottom bounce fill — simulates table reflection
+  const uplight = new THREE.DirectionalLight(0x9e9589, 0.5);
   uplight.position.set(0, -5, 3);
   scene.add(uplight);
 
-  // Tight top spot — highlights the liquid crema surface
-  const spotLight = new THREE.SpotLight(0xffffff, 1.8, 18, Math.PI / 9, 0.6, 0.4);
+  // Top spotlight — highlights the liquid crema surface
+  const spotLight = new THREE.SpotLight(0xffffff, 2.5, 20, Math.PI / 8, 0.5, 0.4);
   spotLight.position.set(1, 9, 3);
   scene.add(spotLight);
 
 
   // ==========================================
-  // 4. HYPER-REALISTIC BLACK CERAMIC MUG
+  // 4. HYPER-REALISTIC BLACK CERAMIC MUG (r128-safe)
   // ==========================================
   const cupGroup = new THREE.Group();
   scene.add(cupGroup);
 
-  // 4a. Glossy Black Ceramic — MeshPhysicalMaterial for true PBR realism
-  const cupMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x000000,              // Pure absolute black
-    roughness: 0.18,              // Glossy ceramic glaze — low roughness for sharp reflections
-    metalness: 0.0,               // Ceramic is a dielectric, not metal
-    clearcoat: 1.0,               // Full transparent glaze layer on top
-    clearcoatRoughness: 0.08,     // Very smooth clearcoat for mirror-like highlights
-    reflectivity: 0.9,            // High reflectivity for glossy black look
-    ior: 1.52,                    // Glass/ceramic index of refraction
-    envMap: envMap,
-    envMapIntensity: 0.85,        // Strong environment reflections
-    sheen: 0.15,                  // Subtle fabric-like sheen at grazing angles
-    sheenRoughness: 0.3,
-    sheenColor: new THREE.Color(0x1a1816), // Warm dark sheen tint
-  });
+  try {
 
-  // 4b. Ultra-Smooth Lathe Profile (256 segments for zero polygon aliasing)
-  const cupPoints = [];
-  cupPoints.push(new THREE.Vector2(0, -1.35));      // Inner bottom center
-  cupPoints.push(new THREE.Vector2(0.88, -1.28));    // Inner bottom corner (gentle curve)
-  cupPoints.push(new THREE.Vector2(1.12, -0.2));     // Inner wall lower
-  cupPoints.push(new THREE.Vector2(1.20, 0.5));      // Inner wall mid
-  cupPoints.push(new THREE.Vector2(1.32, 1.3));      // Inner wall upper
-  cupPoints.push(new THREE.Vector2(1.38, 1.42));     // Rim inner bevel
-  cupPoints.push(new THREE.Vector2(1.44, 1.48));     // Rim top surface
-  cupPoints.push(new THREE.Vector2(1.50, 1.48));     // Rim outer lip
-  cupPoints.push(new THREE.Vector2(1.54, 1.42));     // Rim outer bevel
-  cupPoints.push(new THREE.Vector2(1.50, 1.28));     // Outer wall top
-  cupPoints.push(new THREE.Vector2(1.30, 0.5));      // Outer wall mid
-  cupPoints.push(new THREE.Vector2(1.20, -0.2));     // Outer wall lower
-  cupPoints.push(new THREE.Vector2(1.08, -1.05));    // Outer wall base taper
-  cupPoints.push(new THREE.Vector2(1.02, -1.40));    // Base outer corner
-  cupPoints.push(new THREE.Vector2(0.95, -1.50));    // Bottom ring foot outer
-  cupPoints.push(new THREE.Vector2(0.88, -1.52));    // Bottom ring foot flat
-  cupPoints.push(new THREE.Vector2(0.0, -1.52));     // Center bottom
+    // 4a. Glossy Black Ceramic — MeshPhysicalMaterial (r128 supported props only)
+    const cupMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x050505,              // Near-absolute black
+      roughness: 0.15,              // Very glossy ceramic glaze
+      metalness: 0.0,               // Ceramic is dielectric (not metal)
+      clearcoat: 1.0,               // Full transparent glaze top layer
+      clearcoatRoughness: 0.06,     // Mirror-like clearcoat
+      reflectivity: 0.95,           // High reflectivity
+      ior: 1.52,                    // Ceramic index of refraction
+    });
 
-  const cupGeometry = new THREE.LatheGeometry(cupPoints, 256);
-  cupGeometry.computeVertexNormals();
-  const cupBodyMesh = new THREE.Mesh(cupGeometry, cupMaterial);
-  cupBodyMesh.castShadow = true;
-  cupBodyMesh.receiveShadow = true;
-  cupGroup.add(cupBodyMesh);
+    // 4b. Ultra-smooth Lathe Profile — 256 segments
+    const cupPoints = [];
+    cupPoints.push(new THREE.Vector2(0,     -1.35));
+    cupPoints.push(new THREE.Vector2(0.88,  -1.28));
+    cupPoints.push(new THREE.Vector2(1.10,  -0.5));
+    cupPoints.push(new THREE.Vector2(1.18,   0.2));
+    cupPoints.push(new THREE.Vector2(1.28,   1.1));
+    cupPoints.push(new THREE.Vector2(1.36,   1.38));
+    cupPoints.push(new THREE.Vector2(1.42,   1.46));
+    cupPoints.push(new THREE.Vector2(1.48,   1.48));   // Rim top
+    cupPoints.push(new THREE.Vector2(1.52,   1.42));   // Rim outer bevel
+    cupPoints.push(new THREE.Vector2(1.48,   1.26));   // Outer wall top
+    cupPoints.push(new THREE.Vector2(1.28,   0.2));    // Outer wall mid
+    cupPoints.push(new THREE.Vector2(1.16,  -0.5));    // Outer wall lower
+    cupPoints.push(new THREE.Vector2(1.05,  -1.10));   // Base taper
+    cupPoints.push(new THREE.Vector2(0.98,  -1.42));   // Base corner
+    cupPoints.push(new THREE.Vector2(0.90,  -1.52));   // Foot ring
+    cupPoints.push(new THREE.Vector2(0.0,   -1.52));   // Center base
 
-  // 4c. Inner Wall — slightly different material (matte satin interior)
-  const innerMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x0a0a0a,
-    roughness: 0.55,
-    metalness: 0.0,
-    clearcoat: 0.3,
-    clearcoatRoughness: 0.4,
-    envMap: envMap,
-    envMapIntensity: 0.3,
-  });
-  const innerPoints = [];
-  innerPoints.push(new THREE.Vector2(0, -1.20));
-  innerPoints.push(new THREE.Vector2(0.82, -1.15));
-  innerPoints.push(new THREE.Vector2(1.06, -0.2));
-  innerPoints.push(new THREE.Vector2(1.14, 0.5));
-  innerPoints.push(new THREE.Vector2(1.28, 1.28));
-  innerPoints.push(new THREE.Vector2(1.34, 1.40));
-  const innerGeometry = new THREE.LatheGeometry(innerPoints, 256);
-  innerGeometry.computeVertexNormals();
-  const innerMesh = new THREE.Mesh(innerGeometry, innerMaterial);
-  innerMesh.castShadow = false;
-  innerMesh.receiveShadow = true;
-  cupGroup.add(innerMesh);
+    const cupGeometry = new THREE.LatheGeometry(cupPoints, 256);
+    cupGeometry.computeVertexNormals();
+    const cupBodyMesh = new THREE.Mesh(cupGeometry, cupMaterial);
+    cupBodyMesh.castShadow = true;
+    cupBodyMesh.receiveShadow = true;
+    cupGroup.add(cupBodyMesh);
 
-  // 4d. Elegant Curved Handle — thicker, more realistic
-  const handleShape = new THREE.Shape();
-  handleShape.moveTo(-0.09, -0.09);
-  handleShape.lineTo(0.09, -0.09);
-  handleShape.quadraticCurveTo(0.14, 0, 0.09, 0.09);
-  handleShape.lineTo(-0.09, 0.09);
-  handleShape.quadraticCurveTo(-0.14, 0, -0.09, -0.09);
+    // 4c. Inner wall — matte satin dark interior
+    const innerMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x111111,
+      roughness: 0.6,
+      metalness: 0.0,
+      clearcoat: 0.2,
+      clearcoatRoughness: 0.5,
+    });
+    const innerPoints = [];
+    innerPoints.push(new THREE.Vector2(0,    -1.22));
+    innerPoints.push(new THREE.Vector2(0.82, -1.18));
+    innerPoints.push(new THREE.Vector2(1.04, -0.5));
+    innerPoints.push(new THREE.Vector2(1.12,  0.2));
+    innerPoints.push(new THREE.Vector2(1.24,  1.1));
+    innerPoints.push(new THREE.Vector2(1.30,  1.38));
+    const innerGeometry = new THREE.LatheGeometry(innerPoints, 256);
+    innerGeometry.computeVertexNormals();
+    const innerMesh = new THREE.Mesh(innerGeometry, innerMaterial);
+    innerMesh.receiveShadow = true;
+    cupGroup.add(innerMesh);
 
-  const handleCurve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-1.18, 0.9, 0),
-    new THREE.Vector3(-1.65, 0.5, 0),
-    new THREE.Vector3(-1.75, -0.1, 0),
-    new THREE.Vector3(-1.60, -0.7, 0),
-    new THREE.Vector3(-1.15, -0.95, 0),
-  ]);
+    // 4d. CatmullRom spline handle (realistic ergonomic curve)
+    const handleCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-1.22, 0.85, 0),
+      new THREE.Vector3(-1.68, 0.5,  0),
+      new THREE.Vector3(-1.78, -0.1, 0),
+      new THREE.Vector3(-1.62, -0.7, 0),
+      new THREE.Vector3(-1.18, -0.92, 0),
+    ]);
+    const handleGeometry = new THREE.TubeGeometry(handleCurve, 64, 0.095, 20, false);
+    const handleMesh = new THREE.Mesh(handleGeometry, cupMaterial);
+    handleMesh.castShadow = true;
+    cupGroup.add(handleMesh);
 
-  const handleGeometry = new THREE.TubeGeometry(handleCurve, 64, 0.1, 24, false);
-  const handleMesh = new THREE.Mesh(handleGeometry, cupMaterial);
-  handleMesh.castShadow = true;
-  cupGroup.add(handleMesh);
-
-  // 4e. Dynamic Espresso Crema Swirls & Foam Texture Map
-  const cremaCanvas = document.createElement('canvas');
-  cremaCanvas.width = 1024;
-  cremaCanvas.height = 1024;
-  const cremaCtx = cremaCanvas.getContext('2d');
-  
-  // Base dark gradient espresso
-  const cremaGrad = cremaCtx.createRadialGradient(512, 512, 10, 512, 512, 512);
-  cremaGrad.addColorStop(0, '#6b4a30');    // Light brown hazelnut crema center
-  cremaGrad.addColorStop(0.25, '#4a2d18');  // Rich gold-brown
-  cremaGrad.addColorStop(0.6, '#2a1508');   // Dark roast body
-  cremaGrad.addColorStop(0.85, '#190a04');  // Deep outer coffee
-  cremaGrad.addColorStop(1, '#0c0401');     // Shadow cup rim border
-  cremaCtx.fillStyle = cremaGrad;
-  cremaCtx.fillRect(0, 0, 1024, 1024);
-
-  // Render organic crema swirl structures
-  cremaCtx.strokeStyle = 'rgba(164, 122, 88, 0.25)';
-  cremaCtx.lineWidth = 16;
-  cremaCtx.beginPath();
-  cremaCtx.arc(512, 512, 180, 0.1 * Math.PI, 1.1 * Math.PI);
-  cremaCtx.stroke();
-  
-  cremaCtx.strokeStyle = 'rgba(202, 163, 132, 0.18)';
-  cremaCtx.lineWidth = 10;
-  cremaCtx.beginPath();
-  cremaCtx.arc(512, 512, 320, 0.5 * Math.PI, 1.6 * Math.PI);
-  cremaCtx.stroke();
-
-  cremaCtx.strokeStyle = 'rgba(180, 140, 110, 0.12)';
-  cremaCtx.lineWidth = 6;
-  cremaCtx.beginPath();
-  cremaCtx.arc(480, 530, 260, 1.2 * Math.PI, 2.1 * Math.PI);
-  cremaCtx.stroke();
-
-  // Micro-bubbles — fresh brew froth
-  cremaCtx.fillStyle = 'rgba(224, 192, 168, 0.22)';
-  for (let i = 0; i < 90; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const distance = 60 + Math.random() * 360;
-    const rx = 512 + Math.cos(angle) * distance;
-    const ry = 512 + Math.sin(angle) * distance;
-    const size = 1 + Math.random() * 4.5;
+    // 4e. Espresso crema canvas texture
+    const cremaCanvas = document.createElement('canvas');
+    cremaCanvas.width = 1024;
+    cremaCanvas.height = 1024;
+    const cremaCtx = cremaCanvas.getContext('2d');
+    const cremaGrad = cremaCtx.createRadialGradient(512, 512, 10, 512, 512, 512);
+    cremaGrad.addColorStop(0,    '#6b4a30');
+    cremaGrad.addColorStop(0.25, '#4a2d18');
+    cremaGrad.addColorStop(0.6,  '#2a1508');
+    cremaGrad.addColorStop(0.85, '#190a04');
+    cremaGrad.addColorStop(1,    '#0c0401');
+    cremaCtx.fillStyle = cremaGrad;
+    cremaCtx.fillRect(0, 0, 1024, 1024);
+    cremaCtx.strokeStyle = 'rgba(164, 122, 88, 0.25)';
+    cremaCtx.lineWidth = 16;
     cremaCtx.beginPath();
-    cremaCtx.arc(rx, ry, size, 0, Math.PI * 2);
-    cremaCtx.fill();
+    cremaCtx.arc(512, 512, 180, 0.1 * Math.PI, 1.1 * Math.PI);
+    cremaCtx.stroke();
+    cremaCtx.strokeStyle = 'rgba(202, 163, 132, 0.18)';
+    cremaCtx.lineWidth = 10;
+    cremaCtx.beginPath();
+    cremaCtx.arc(512, 512, 320, 0.5 * Math.PI, 1.6 * Math.PI);
+    cremaCtx.stroke();
+    cremaCtx.fillStyle = 'rgba(224, 192, 168, 0.22)';
+    for (let i = 0; i < 80; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 60 + Math.random() * 340;
+      const rx = 512 + Math.cos(angle) * dist;
+      const ry = 512 + Math.sin(angle) * dist;
+      const sz = 1 + Math.random() * 4;
+      cremaCtx.beginPath();
+      cremaCtx.arc(rx, ry, sz, 0, Math.PI * 2);
+      cremaCtx.fill();
+    }
+    const cremaTexture = new THREE.CanvasTexture(cremaCanvas);
+    cremaTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    // Liquid surface — glossy mirror-like coffee
+    const liquidGeometry = new THREE.CylinderGeometry(1.22, 1.10, 0.04, 256);
+    const liquidMaterial = new THREE.MeshPhysicalMaterial({
+      map: cremaTexture,
+      roughness: 0.01,
+      metalness: 0.0,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.0,
+      ior: 1.33,
+    });
+    const liquidMesh = new THREE.Mesh(liquidGeometry, liquidMaterial);
+    liquidMesh.position.set(0, 1.20, 0);
+    cupGroup.add(liquidMesh);
+
+    // 4f. Gold-foil brand stamp canvas
+    const logoCanvas = document.createElement('canvas');
+    logoCanvas.width  = 2048;
+    logoCanvas.height = 2048;
+    const ctx = logoCanvas.getContext('2d');
+    ctx.clearRect(0, 0, 2048, 2048);
+    ctx.fillStyle = '#B8AD9A';
+    ctx.font = '600 480px Montserrat, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('4', 760, 1040);
+    const lineW = 420, lineH = 30, lineGap = 40, startY = 740;
+    for (let i = 0; i < 4; i++) {
+      ctx.fillRect(820, startY + i * (lineH + lineGap), lineW, lineH);
+    }
+    ctx.font = '600 480px Montserrat, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('UR', 1320, 1040);
+    ctx.font = '300 140px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('C  A  F  E', 1024, 1300);
+
+    const logoTexture = new THREE.CanvasTexture(logoCanvas);
+    logoTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    const logoGeometry = new THREE.CylinderGeometry(1.505, 1.235, 1.2, 64, 1, true, -Math.PI / 6, Math.PI / 3);
+    const logoMaterial = new THREE.MeshStandardMaterial({
+      map: logoTexture,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      roughness: 0.15,
+      metalness: 0.88,
+    });
+    const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
+    logoMesh.position.set(0, -0.05, 0.015);
+    cupGroup.add(logoMesh);
+
+  } catch (e) {
+    console.error('3D cup build error:', e);
+    // Fallback: simple black cup so something always renders
+    const fallbackMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3 });
+    const fallbackCup = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.0, 3.0, 64), fallbackMat);
+    cupGroup.add(fallbackCup);
   }
-
-  const cremaTexture = new THREE.CanvasTexture(cremaCanvas);
-  cremaTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-
-  // Liquid surface inside mug — ultra-gloss mirror
-  const liquidGeometry = new THREE.CylinderGeometry(1.26, 1.12, 0.04, 256);
-  const liquidMaterial = new THREE.MeshPhysicalMaterial({
-    map: cremaTexture,
-    roughness: 0.01,               // Near-perfect mirror liquid
-    metalness: 0.02,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.0,
-    ior: 1.33,                     // Water/coffee IOR
-    envMap: envMap,
-    envMapIntensity: 0.6,
-  });
-  const liquidMesh = new THREE.Mesh(liquidGeometry, liquidMaterial);
-  liquidMesh.position.set(0, 1.22, 0);
-  cupGroup.add(liquidMesh);
-
-  // 4f. 8K Sharp CanvasTexture Branding (Metallic Stone-Beige Gold Foil Stamp)
-  const logoCanvas = document.createElement('canvas');
-  logoCanvas.width = 2048;
-  logoCanvas.height = 2048;
-  const ctx = logoCanvas.getContext('2d');
-  
-  ctx.clearRect(0, 0, 2048, 2048);
-  ctx.fillStyle = '#B8AD9A'; // Brand stone beige base
-  
-  // Montserrat-styled vector lettering drawn with 8K subpixel accuracy
-  ctx.font = '500 480px Montserrat, sans-serif';
-  ctx.textAlign = 'right';
-  ctx.fillText('4', 760, 1040);
-  
-  // Four parallel lines
-  const lineW = 420;
-  const lineH = 30;
-  const lineGap = 40;
-  const startY = 740;
-  for (let i = 0; i < 4; i++) {
-    ctx.fillRect(820, startY + i * (lineH + lineGap), lineW, lineH);
-  }
-  
-  ctx.font = '500 480px Montserrat, sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText('UR', 1320, 1040);
-  
-  ctx.font = '300 140px Montserrat, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('C  A  F  E', 1024, 1300);
-
-  const logoTexture = new THREE.CanvasTexture(logoCanvas);
-  logoTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-
-  // Cylindrical wrap segment snug to cup body
-  const logoGeometry = new THREE.CylinderGeometry(1.518, 1.242, 1.2, 64, 1, true, -Math.PI / 6, Math.PI / 3);
-  
-  // Metallic stone-beige gold foil material
-  const logoMaterial = new THREE.MeshPhysicalMaterial({
-    map: logoTexture,
-    transparent: true,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-    roughness: 0.12,       // Polished foil
-    metalness: 0.92,       // Very metallic gold stamp
-    color: 0xffffff,
-    envMap: envMap,
-    envMapIntensity: 0.5,
-  });
-  
-  const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
-  logoMesh.position.set(0, -0.05, 0.015);
-  cupGroup.add(logoMesh);
 
 
   // ==========================================
