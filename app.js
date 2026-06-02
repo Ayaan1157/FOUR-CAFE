@@ -1362,4 +1362,74 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // ==========================================================================
+  // 13. CINEMATIC FULLSCREEN MENU EXPERIENCE & TRANSITIONS
+  // ==========================================================================
+  const menuOverlay = document.getElementById('menu-experience');
+  const exploreMenuBtn = document.getElementById('btn-explore-menu');
+  const menuBackBtn = document.getElementById('menu-back-btn');
+  const menuCatLinks = document.querySelectorAll('.menu-cat-link');
+  const galleryFrames = document.querySelectorAll('.gallery-frame');
+  const categoryBlocks = document.querySelectorAll('.category-menu-block');
+
+  if (exploreMenuBtn && menuOverlay) {
+    exploreMenuBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Step 1: Activate overlay and start sliding curtains closed
+      menuOverlay.classList.add('active');
+      menuOverlay.classList.add('transition-in');
+      menuOverlay.classList.remove('transition-out');
+      
+      // Step 2: Once curtains meet (at 800ms), reveal content and slide curtains apart
+      setTimeout(() => {
+        menuOverlay.classList.remove('transition-in');
+        menuOverlay.classList.add('transition-out');
+      }, 800);
+    });
+  }
+
+  if (menuBackBtn && menuOverlay) {
+    menuBackBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Step 1: Slide curtains back together to cover content
+      menuOverlay.classList.add('transition-in');
+      menuOverlay.classList.remove('transition-out');
+      
+      // Step 2: Once covered, completely close overlay
+      setTimeout(() => {
+        menuOverlay.classList.remove('active');
+        menuOverlay.classList.remove('transition-in');
+      }, 700);
+    });
+  }
+
+  // Categories & Left Gallery Synchronization
+  menuCatLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      const target = link.getAttribute('data-target');
+      
+      // Active link toggle
+      menuCatLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      
+      // Category blocks toggle
+      categoryBlocks.forEach(block => {
+        block.classList.remove('active');
+        if (block.id === `menu-cat-${target}`) {
+          block.classList.add('active');
+        }
+      });
+
+      // Left Gallery frames toggle
+      galleryFrames.forEach(frame => {
+        frame.classList.remove('active');
+        if (frame.getAttribute('data-category') === target) {
+          frame.classList.add('active');
+        }
+      });
+    });
+  });
+
 });
