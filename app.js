@@ -162,15 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   try {
 
-    // 4a. Glossy Black Ceramic — MeshPhysicalMaterial (r128 supported props only)
-    const cupMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x050505,              // Near-absolute black
-      roughness: 0.15,              // Very glossy ceramic glaze
-      metalness: 0.0,               // Ceramic is dielectric (not metal)
-      clearcoat: 1.0,               // Full transparent glaze top layer
-      clearcoatRoughness: 0.06,     // Mirror-like clearcoat
-      reflectivity: 0.95,           // High reflectivity
-      ior: 1.52,                    // Ceramic index of refraction
+    // 4a. FULLY MATTE BLACK ceramic — zero gloss, zero clearcoat
+    const cupMaterial = new THREE.MeshStandardMaterial({
+      color: 0x080808,        // Pure near-black
+      roughness: 1.0,         // 100% matte — diffuse only, no specular
+      metalness: 0.0,         // Ceramic dielectric
     });
 
     // 4b. Ultra-smooth Lathe Profile — 256 segments
@@ -199,13 +195,11 @@ document.addEventListener('DOMContentLoaded', () => {
     cupBodyMesh.receiveShadow = true;
     cupGroup.add(cupBodyMesh);
 
-    // 4c. Inner wall — matte satin dark interior
-    const innerMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x111111,
-      roughness: 0.6,
+    // 4c. Inner wall — same matte black as outer
+    const innerMaterial = new THREE.MeshStandardMaterial({
+      color: 0x060606,
+      roughness: 1.0,
       metalness: 0.0,
-      clearcoat: 0.2,
-      clearcoatRoughness: 0.5,
     });
     const innerPoints = [];
     innerPoints.push(new THREE.Vector2(0,    -1.22));
@@ -335,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let targetProgress = 0;
   let currentProgress = 0;
   let lastProgress = -1;
-  const videoLerpSpeed = 0.05; // Butter-smooth cinematic scrolling inertia
+  const videoLerpSpeed = 0.08; // Responsive but smooth cinematic inertia
 
   // Map progress indices to target 3D positions & rotations (Apple/Oryzo.ai style)
   const keyframes = [
@@ -411,22 +405,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Scroll listener driving progress from 0 to 1 mapped to the section's scroll range
+  // Scroll listener — drives 3D progress AND DOM scroll effects
+  // Uses a single passive scroll listener with a rAF gate to batch all DOM work
+  let scrollRafPending = false;
   window.addEventListener('scroll', () => {
-    if (!heroSection) return;
-    
-    const sectionTop = heroSection.offsetTop;
-    const sectionHeight = heroSection.offsetHeight;
-    const scrollRange = sectionHeight - window.innerHeight;
-    
-    const relativeScroll = window.scrollY - sectionTop;
-    let progress = 0;
-    if (scrollRange > 0) {
-      progress = Math.max(0, Math.min(1, relativeScroll / scrollRange));
+    // 3D progress update is just a number assignment — instant, no DOM
+    if (heroSection) {
+      const sectionTop = heroSection.offsetTop;
+      const sectionHeight = heroSection.offsetHeight;
+      const scrollRange = sectionHeight - window.innerHeight;
+      const relativeScroll = window.scrollY - sectionTop;
+      let progress = scrollRange > 0 ? Math.max(0, Math.min(1, relativeScroll / scrollRange)) : 0;
+      if (isNaN(progress)) progress = 0;
+      targetProgress = progress;
     }
-    
-    if (isNaN(progress)) progress = 0;
-    targetProgress = progress;
+
+    // DOM scroll effects (stacking, illumination) — batched into a single rAF
+    if (!scrollRafPending) {
+      scrollRafPending = true;
+      requestAnimationFrame(() => {
+        updateRoomCardStacking();
+        updateExclusivityIllumination();
+        scrollRafPending = false;
+      });
+    }
   }, { passive: true });
 
   // Initial and reactive caching triggers
@@ -486,46 +488,56 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 6. THE ROOMS: 3D STACKING DEPTH ENGINE
   // ==========================================
+
+  // Pre-query the overlay elements once — reuse for cheap opacity changes
+  const cardOverlays = Array.from(roomCards).map(card => {
+    let overlay = card.querySelector('.room-card-dim');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'room-card-dim';
+      overlay.style.cssText = 'position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;z-index:2;transition:opacity 0.1s linear;border-radius:inherit;';
+      card.style.position = 'relative';
+      card.appendChild(overlay);
+    }
+    return overlay;
+  });
+
   function updateRoomCardStacking() {
     if (!roomCards.length || !roomCardOffsets.length) return;
-    
+
     const isMobile = window.innerWidth <= 768;
-    const stickyTop = isMobile ? 15 : 20; // Matches CSS top: 20px / 15px
+    const stickyTop = isMobile ? 15 : 20;
     const viewportHeight = window.innerHeight;
     const scrollY = window.scrollY;
-    
+
     roomCards.forEach((card, index) => {
       const cached = roomCardOffsets[index];
       if (!cached) return;
-      
-      // Calculate top relative to viewport without DOM query
+
       const cardTop = Math.max(stickyTop, cached.offsetTop - scrollY);
-      
+
       if (cardTop <= stickyTop + 2) {
-        // Track the next card to calculate how much it has overlapped the current card
         const nextCached = roomCardOffsets[index + 1];
         if (nextCached) {
           const nextCardTop = nextCached.offsetTop - scrollY;
           const distance = nextCardTop - stickyTop;
-          
-          // Dynamic scroll range until next card is fully stacked (100vh + gap of 48vh / 30vh)
-          const overlapRange = viewportHeight + viewportHeight * (isMobile ? 0.3 : 0.48); 
+          const overlapRange = viewportHeight + viewportHeight * (isMobile ? 0.3 : 0.48);
           const progress = Math.max(0, Math.min(1, 1 - (distance / overlapRange)));
-          
-          // Dynamic editorial deck-stacking parameters
-          const scale = 1 - (progress * 0.05); // Gently scale down to 0.95
-          const brightness = 1 - (progress * 0.45); // Darken down to 0.55
-          const translateY = -progress * 20; // Subtle lift
-          
+
+          const scale = 1 - (progress * 0.05);
+          const translateY = -progress * 20;
+          // Use opacity overlay instead of filter:brightness — GPU compositor-only, zero repaint
+          const dimOpacity = progress * 0.5;
+
           card.style.transform = `scale(${scale}) translateY(${translateY}px)`;
-          card.style.filter = `brightness(${brightness})`;
+          if (cardOverlays[index]) cardOverlays[index].style.opacity = dimOpacity;
         } else {
           card.style.transform = 'scale(1) translateY(0)';
-          card.style.filter = 'brightness(1)';
+          if (cardOverlays[index]) cardOverlays[index].style.opacity = 0;
         }
       } else {
         card.style.transform = 'scale(1) translateY(0)';
-        card.style.filter = 'brightness(1)';
+        if (cardOverlays[index]) cardOverlays[index].style.opacity = 0;
       }
     });
   }
@@ -687,13 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
       lastProgress = currentProgress;
     }
 
-    // High-performance scroll tracking (Run layout updates exactly once per frame, only on scroll change)
-    const scrollY = window.scrollY;
-    if (scrollY !== lastScrollY) {
-      updateRoomCardStacking();
-      updateExclusivityIllumination();
-      lastScrollY = scrollY;
-    }
+    // WebGL render runs every frame — DOM scroll updates run separately on scroll event only
 
     // 11b. Evaluate timeline values
     const cupTimeline = interpolateTimeline(currentProgress);
