@@ -307,17 +307,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = logoCanvas.getContext('2d');
     ctx.clearRect(0, 0, 2048, 2048);
     ctx.fillStyle = '#B8AD9A';
-    ctx.font = '600 480px Montserrat, sans-serif';
+    ctx.font = '600 480px Inter, sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText('4', 760, 1040);
     const lineW = 420, lineH = 30, lineGap = 40, startY = 740;
     for (let i = 0; i < 4; i++) {
       ctx.fillRect(820, startY + i * (lineH + lineGap), lineW, lineH);
     }
-    ctx.font = '600 480px Montserrat, sans-serif';
+    ctx.font = '600 480px Inter, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('UR', 1320, 1040);
-    ctx.font = '300 140px Montserrat, sans-serif';
+    ctx.font = '300 140px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('C  A  F  E', 1024, 1300);
 
