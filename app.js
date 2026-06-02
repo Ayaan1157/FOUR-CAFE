@@ -25,6 +25,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const memberCards = document.querySelectorAll('.member-card');
 
   // ==========================================
+  // 0. DARK / LIGHT MODE TOGGLE
+  // ==========================================
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+
+  function applyTheme(isDark) {
+    if (isDark) {
+      html.classList.add('dark');
+      localStorage.setItem('four_cafe_theme', 'dark');
+    } else {
+      html.classList.remove('dark');
+      localStorage.setItem('four_cafe_theme', 'light');
+    }
+  }
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      applyTheme(!html.classList.contains('dark'));
+    });
+  }
+
+  // ==========================================
   // 1. DIPTYCH SPLIT-PANEL PRELOADER (ULTRA-FAST & ADAPTIVE)
   // ==========================================
   const preloader = document.getElementById('preloader');
