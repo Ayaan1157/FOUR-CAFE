@@ -490,13 +490,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
 
   // Pre-query the overlay elements once — reuse for cheap opacity changes
+  // NOTE: Do NOT set card.style.position here — cards use position:sticky from CSS
   const cardOverlays = Array.from(roomCards).map(card => {
     let overlay = card.querySelector('.room-card-dim');
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.className = 'room-card-dim';
       overlay.style.cssText = 'position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;z-index:2;transition:opacity 0.1s linear;border-radius:inherit;';
-      card.style.position = 'relative';
       card.appendChild(overlay);
     }
     return overlay;
