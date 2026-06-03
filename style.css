@@ -5,28 +5,28 @@
 
 /* Core CSS Variables — Light Mode (default) */
 :root {
-  --bg-color: #E5DDD3;       /* Warm stone-beige background */
-  --text-color: #0A0A0A;     /* Rich near-black typography */
-  --accent-color: #B8AD9A;   /* Stone Beige */
-  --surface-color: #E5DDD3;
-  --dark-accent: #1F1F1F;
-  --cream-bg: #E5DDD3;
-  --cream-text: #0A0A0A;
+  --bg-color: #4E4A46;       /* Warm dark clay plaster background */
+  --text-color: #F5EBD6;     /* Warm cream typography */
+  --accent-color: #C3B8A7;   /* Soft sand beige */
+  --surface-color: #3D3935;  /* Darker clay surface card background */
+  --dark-accent: #EBD9C8;
+  --cream-bg: #4E4A46;
+  --cream-text: #F5EBD6;
   /* Typography system */
   --font-display: 'Cormorant Garamond', serif;  /* Display, headlines, pull-quotes */
   --font-body: 'Inter', sans-serif;              /* Body, UI, labels, captions */
   --font-serif: 'Cormorant Garamond', serif;     /* Alias kept for legacy refs */
   --font-header: 'Inter', sans-serif;            /* Nav, buttons, tags */
   --cursor-size: 8px;
-  --nav-text: rgba(10, 10, 10, 0.65);
-  --header-border: rgba(10, 10, 10, 0.05);
-  --header-bg-start: rgba(229, 221, 211, 0.85);
-  --header-bg-end: rgba(229, 221, 211, 0);
-  --hero-vignette-center: rgba(229, 221, 211, 0.05);
-  --hero-vignette-outer: rgba(229, 221, 211, 0.6);
-  --hero-gradient-start: rgba(229, 221, 211, 0.1);
-  --hero-gradient-end: rgba(229, 221, 211, 0.7);
-  --scrollbar-track: #E5DDD3;
+  --nav-text: rgba(245, 235, 214, 0.7);
+  --header-border: rgba(245, 235, 214, 0.08);
+  --header-bg-start: rgba(78, 74, 70, 0.85);
+  --header-bg-end: rgba(78, 74, 70, 0);
+  --hero-vignette-center: rgba(78, 74, 70, 0.05);
+  --hero-vignette-outer: rgba(78, 74, 70, 0.7);
+  --hero-gradient-start: rgba(78, 74, 70, 0.1);
+  --hero-gradient-end: rgba(78, 74, 70, 0.8);
+  --scrollbar-track: #4E4A46;
 }
 
 /* Dark Mode Overrides */

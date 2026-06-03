@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('four_cafe_theme', 'light');
     }
     if (bgMaterial) {
-      bgMaterial.color.setHex(isDark ? 0x0c0b0a : 0xe5ddd3);
+      bgMaterial.color.setHex(isDark ? 0x0c0b0a : 0x4e4a46);
     }
   }
 
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     // 4a. Studio Floor and Background planes to Catch Soft Shadows dynamically
     bgMaterial = new THREE.MeshStandardMaterial({
-      color: html.classList.contains('dark') ? 0x0c0b0a : 0xe5ddd3, // Matches light/dark modes
+      color: html.classList.contains('dark') ? 0x0c0b0a : 0x4e4a46, // Matches light/dark modes
       roughness: 0.95,
       metalness: 0.0
     });
@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = logoCanvas.getContext('2d');
     
     // Fill background with matte charcoal black
-    ctx.fillStyle = '#121212';
+    ctx.fillStyle = '#0d0d0d';
     ctx.fillRect(0, 0, 2048, 2048);
 
     // Helper to draw text with letter spacing on canvas
@@ -418,6 +418,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4c. Matte Black Paper Material
     const cupMaterial = new THREE.MeshStandardMaterial({
       map: logoTexture,
+      roughness: 0.95,
+      metalness: 0.0
+    });
+
+    // 4c-2. Separate Matte Black Rim and Bottom Material (no logo mapping to avoid stretching)
+    const cupRimMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0d0d0d, // Deep matte black
       roughness: 0.95,
       metalness: 0.0
     });
@@ -465,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4e. Bottom cap
     const bottomGeometry = new THREE.CircleGeometry(0.9, 128);
     bottomGeometry.rotateX(Math.PI / 2);
-    const bottomMesh = new THREE.Mesh(bottomGeometry, cupMaterial);
+    const bottomMesh = new THREE.Mesh(bottomGeometry, cupRimMaterial);
     bottomMesh.position.y = -1.3;
     bottomMesh.receiveShadow = true;
     cupGroup.add(bottomMesh);
@@ -473,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4f. Top Rolled Paper Rim (Torus)
     const rimGeometry = new THREE.TorusGeometry(1.23, 0.05, 16, 128);
     rimGeometry.rotateX(Math.PI / 2);
-    const rimMesh = new THREE.Mesh(rimGeometry, cupMaterial);
+    const rimMesh = new THREE.Mesh(rimGeometry, cupRimMaterial);
     rimMesh.position.y = 1.3;
     rimMesh.castShadow = true;
     cupGroup.add(rimMesh);
@@ -527,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let targetProgress = 0;
   let currentProgress = 0;
   let lastProgress = -1;
-  const videoLerpSpeed = 0.08; // Responsive but smooth cinematic inertia
+  const videoLerpSpeed = 0.025; // Responsive but smooth cinematic inertia
 
   // Map progress indices to target 3D positions & rotations (Apple/Oryzo.ai style)
   const keyframes = [
@@ -913,7 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mouseTiltY = (targetCursorX / window.innerWidth - 0.5) * 0.28;
 
     // Lerp coordinates toward targets to prevent any jarring snap jumps (Ultra-smooth 0.045 factor)
-    const lerpSpeed = 0.045;
+    const lerpSpeed = 0.03;
     currentX += (cupTimeline.x - currentX) * lerpSpeed;
     currentY += (cupTimeline.y - currentY) * lerpSpeed;
     currentZ += (cupTimeline.z - currentZ) * lerpSpeed;
@@ -981,14 +988,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Render flowing stream connecting the lowest rim point to the floor
       if (streamMesh) {
-        streamMesh.visible = true;
         const streamH = lowestWorldPos.y - floorY;
         if (streamH > 0) {
-          streamMesh.position.set(lowestWorldPos.x, floorY + streamH / 2, lowestWorldPos.z);
-          streamMesh.scale.set(1, streamH, 1);
+          streamMesh.visible = true;
+          // Position the top of the stream exactly at the lowest point of the rim
+          streamMesh.position.set(lowestWorldPos.x, lowestWorldPos.y, lowestWorldPos.z);
+          
+          // Seamless fade-in and fade-out of the stream thickness & opacity to avoid abrupt breaks
+          let streamFade = 1.0;
+          if (tSpill < 0.12) {
+            streamFade = tSpill / 0.12;
+          } else if (tSpill > 0.88) {
+            streamFade = (1.0 - tSpill) / 0.12;
+          }
+
+          // Scale thickness (X & Z) by streamFade, height (Y) by streamH
+          streamMesh.scale.set(streamFade, streamH, streamFade);
+          
+          if (streamMesh.material) {
+            streamMesh.material.opacity = 0.92 * streamFade;
+          }
+        } else {
+          streamMesh.visible = false;
         }
         if (streamTexture) {
-          streamTexture.offset.y -= 0.045; // scroll downward
+          streamTexture.offset.y -= 0.035; // scroll downward
         }
       }
 
@@ -1000,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
           puddleMesh.position.copy(puddlePos);
           puddleLocked = true;
         }
-        const puddleGrowT = Math.min(1.0, tSpill / 0.4); // reach max size quickly
+        const puddleGrowT = Math.min(1.0, tSpill / 0.4); // reach max size smoothly
         const scale = puddleGrowT * maxPuddleScale;
         puddleMesh.scale.set(scale, scale, scale);
       }
