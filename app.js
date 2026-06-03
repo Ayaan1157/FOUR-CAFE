@@ -31,6 +31,172 @@ document.addEventListener('DOMContentLoaded', () => {
   const html = document.documentElement;
   let bgMaterial = null; // Reference to background 3D plane material
 
+  // Coffee filling & scroll-synchronized spill global variables
+  let liquidMesh = null;
+  let streamMesh = null;
+  let streamTexture = null;
+  let puddleMesh = null;
+  let puddleTexture = null;
+  const puddlePos = new THREE.Vector3();
+  let puddleLocked = false;
+  const maxPuddleScale = 0.65;
+  const floorY = -2.2;
+
+  // Hyper-realistic texture generation helpers
+  function createCremaTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    // Base dark espresso base
+    ctx.fillStyle = '#2b1408';
+    ctx.fillRect(0, 0, 512, 512);
+
+    const centerX = 256;
+    const centerY = 256;
+
+    // Rich golden swirl rings
+    for (let r = 12; r < 240; r += 10) {
+      const segments = 80;
+      ctx.beginPath();
+      for (let i = 0; i <= segments; i++) {
+        const angle = (i / segments) * Math.PI * 2;
+        // Wavy organic perturbations for natural swirling crema
+        const noise = Math.sin(angle * 3.5 + r * 0.04) * 16 + Math.cos(angle * 6.0 - r * 0.025) * 8;
+        const currentR = r + noise;
+        const x = centerX + Math.cos(angle) * currentR;
+        const y = centerY + Math.sin(angle) * currentR;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      const alpha = 0.28 + Math.sin(r * 0.12) * 0.18;
+      ctx.strokeStyle = `rgba(${195 + Math.floor(Math.sin(r)*45)}, ${135 + Math.floor(Math.cos(r)*35)}, 65, ${alpha})`;
+      ctx.lineWidth = 8 + Math.sin(r * 0.15) * 5;
+      ctx.stroke();
+    }
+
+    // Edge foam bubbles
+    for (let i = 0; i < 90; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 160 + Math.random() * 75;
+      const x = centerX + Math.cos(angle) * r;
+      const y = centerY + Math.sin(angle) * r;
+      const size = 1.5 + Math.random() * 5.5;
+
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(230, 195, 145, 0.42)';
+      ctx.fill();
+      ctx.lineWidth = 0.6;
+      ctx.strokeStyle = 'rgba(95, 48, 18, 0.55)';
+      ctx.stroke();
+    }
+
+    // Center micro-bubbles
+    for (let i = 0; i < 50; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.random() * 110;
+      const x = centerX + Math.cos(angle) * r;
+      const y = centerY + Math.sin(angle) * r;
+      const size = 0.8 + Math.random() * 2.5;
+
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(225, 185, 135, 0.3)';
+      ctx.fill();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+  }
+
+  function createStreamTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    
+    const grad = ctx.createLinearGradient(0, 0, 128, 0);
+    grad.addColorStop(0, '#150602');
+    grad.addColorStop(0.28, '#2d1407');
+    grad.addColorStop(0.5, '#4a2512');
+    grad.addColorStop(0.72, '#2d1407');
+    grad.addColorStop(1, '#150602');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 128, 256);
+    
+    ctx.strokeStyle = 'rgba(220, 165, 95, 0.28)';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 5; i++) {
+      const x = 25 + Math.random() * 78;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + (Math.random() - 0.5) * 8, 256);
+      ctx.stroke();
+    }
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+  }
+
+  function createPuddleTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, 512, 512);
+
+    const centerX = 256;
+    const centerY = 256;
+
+    ctx.beginPath();
+    const numPoints = 28;
+    for (let i = 0; i <= numPoints; i++) {
+      const angle = (i / numPoints) * Math.PI * 2;
+      const rNoise = Math.sin(angle * 4.5) * 22 + Math.cos(angle * 8.0) * 16 + Math.sin(angle * 13.0) * 6;
+      const r = 145 + rNoise;
+      const x = centerX + Math.cos(angle) * r;
+      const y = centerY + Math.sin(angle) * r;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    
+    const gradient = ctx.createRadialGradient(centerX, centerY, 15, centerX, centerY, 165);
+    gradient.addColorStop(0, '#1a0a03');
+    gradient.addColorStop(0.68, '#2d1407');
+    gradient.addColorStop(0.88, '#44220c');
+    gradient.addColorStop(1, 'rgba(68, 34, 12, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    const drawDroplet = (dx, dy, radius) => {
+      ctx.beginPath();
+      ctx.arc(centerX + dx, centerY + dy, radius, 0, Math.PI * 2);
+      const dropGrad = ctx.createRadialGradient(centerX + dx, centerY + dy, 1, centerX + dx, centerY + dy, radius);
+      dropGrad.addColorStop(0, '#2d1407');
+      dropGrad.addColorStop(0.75, '#44220c');
+      dropGrad.addColorStop(1, 'rgba(68, 34, 12, 0)');
+      ctx.fillStyle = dropGrad;
+      ctx.fill();
+    };
+
+    drawDroplet(175, 95, 13);
+    drawDroplet(-155, -125, 17);
+    drawDroplet(115, -185, 9);
+    drawDroplet(-185, 75, 11);
+    drawDroplet(25, 205, 15);
+    drawDroplet(-80, 180, 10);
+    drawDroplet(190, -110, 8);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+  }
+
   function applyTheme(isDark) {
     if (isDark) {
       html.classList.add('dark');
@@ -187,17 +353,27 @@ document.addEventListener('DOMContentLoaded', () => {
   scene.add(cupGroup);
 
   try {
-    // 4a. Background Plane to Catch Soft Shadows dynamically
+    // 4a. Studio Floor and Background planes to Catch Soft Shadows dynamically
     bgMaterial = new THREE.MeshStandardMaterial({
       color: html.classList.contains('dark') ? 0x0c0b0a : 0xe5ddd3, // Matches light/dark modes
       roughness: 0.95,
       metalness: 0.0
     });
+    
+    // Background Wall
     const bgGeometry = new THREE.PlaneGeometry(30, 30);
     const bgMesh = new THREE.Mesh(bgGeometry, bgMaterial);
     bgMesh.position.set(0, 0, -2.5);
     bgMesh.receiveShadow = true;
     scene.add(bgMesh);
+
+    // Floor Plane
+    const floorGeometry = new THREE.PlaneGeometry(50, 50);
+    const floorMesh = new THREE.Mesh(floorGeometry, bgMaterial);
+    floorMesh.rotation.x = -Math.PI / 2;
+    floorMesh.position.y = floorY;
+    floorMesh.receiveShadow = true;
+    scene.add(floorMesh);
 
     // 4b. Draw Spaced Text Logo Canvas (Matte Black Cup Wrap)
     const logoCanvas = document.createElement('canvas');
@@ -254,6 +430,38 @@ document.addEventListener('DOMContentLoaded', () => {
     cupBodyMesh.receiveShadow = true;
     cupGroup.add(cupBodyMesh);
 
+    // 4d-2. Double-wall beige/off-white paper interior
+    const innerMaterial = new THREE.MeshStandardMaterial({
+      color: 0xe5d8cb, // Warm beige paper cup interior
+      roughness: 0.9,
+      metalness: 0.0,
+      side: THREE.BackSide // Render inside faces only
+    });
+    const innerGeometry = new THREE.CylinderGeometry(1.24, 0.89, 2.58, 128, 1, true);
+    const innerBodyMesh = new THREE.Mesh(innerGeometry, innerMaterial);
+    innerBodyMesh.position.y = 0.01;
+    cupGroup.add(innerBodyMesh);
+
+    // Inner Bottom Paper disc
+    const innerBottomGeometry = new THREE.CircleGeometry(0.89, 128);
+    innerBottomGeometry.rotateX(-Math.PI / 2); // face up
+    const innerBottomMesh = new THREE.Mesh(innerBottomGeometry, innerMaterial);
+    innerBottomMesh.position.y = -1.28;
+    cupGroup.add(innerBottomMesh);
+
+    // 4d-3. Crema-textured Espresso coffee liquid plane
+    const coffeeTexture = createCremaTexture();
+    const coffeeMaterial = new THREE.MeshStandardMaterial({
+      map: coffeeTexture,
+      roughness: 0.35,
+      metalness: 0.05
+    });
+    const liquidGeometry = new THREE.CircleGeometry(1.23, 128);
+    liquidGeometry.rotateX(-Math.PI / 2); // face up
+    liquidMesh = new THREE.Mesh(liquidGeometry, coffeeMaterial);
+    liquidMesh.position.y = 1.15; // Starting fill height just below rim
+    cupGroup.add(liquidMesh);
+
     // 4e. Bottom cap
     const bottomGeometry = new THREE.CircleGeometry(0.9, 128);
     bottomGeometry.rotateX(Math.PI / 2);
@@ -270,32 +478,38 @@ document.addEventListener('DOMContentLoaded', () => {
     rimMesh.castShadow = true;
     cupGroup.add(rimMesh);
 
-    // 4g. Matte Black Plastic Lid (Detailed profile from LatheGeometry)
-    const lidPoints = [];
-    lidPoints.push(new THREE.Vector2(0, 1.45));       // Center top
-    lidPoints.push(new THREE.Vector2(0.75, 1.45));    // Inner flat top
-    lidPoints.push(new THREE.Vector2(0.85, 1.43));    // Top edge bevel
-    lidPoints.push(new THREE.Vector2(0.88, 1.34));    // Inner vertical drop
-    lidPoints.push(new THREE.Vector2(1.10, 1.34));    // Horizontal step base
-    lidPoints.push(new THREE.Vector2(1.16, 1.38));    // Rise to outer crown
-    lidPoints.push(new THREE.Vector2(1.22, 1.38));    // Top of outer crown
-    lidPoints.push(new THREE.Vector2(1.26, 1.24));    // Outer vertical drop over rim
-    lidPoints.push(new THREE.Vector2(1.29, 1.24));    // Flare out for lip
-    lidPoints.push(new THREE.Vector2(1.29, 1.15));    // Bottom of outer lip
-    lidPoints.push(new THREE.Vector2(1.23, 1.15));    // Under lip cut
-    lidPoints.push(new THREE.Vector2(1.23, 1.20));    // Inside lip up to meet cup top
-
-    const lidGeometry = new THREE.LatheGeometry(lidPoints, 128);
-    lidGeometry.computeVertexNormals();
-    const lidMaterial = new THREE.MeshStandardMaterial({
-      color: 0x141414, // Matte black satin plastic
-      roughness: 0.55,
-      metalness: 0.05
+    // 4g. Flat persistent puddle mesh on floor
+    puddleTexture = createPuddleTexture();
+    const puddleMaterial = new THREE.MeshBasicMaterial({
+      map: puddleTexture,
+      transparent: true,
+      opacity: 0.95,
+      depthWrite: false // prevent clipping issues
     });
-    const lidMesh = new THREE.Mesh(lidGeometry, lidMaterial);
-    lidMesh.castShadow = true;
-    lidMesh.receiveShadow = true;
-    cupGroup.add(lidMesh);
+    const puddleGeometry = new THREE.PlaneGeometry(1.6, 1.6);
+    puddleMesh = new THREE.Mesh(puddleGeometry, puddleMaterial);
+    puddleMesh.rotation.x = -Math.PI / 2;
+    puddleMesh.position.y = floorY + 0.005; // tiny Y offset to prevent Z-fighting
+    puddleMesh.scale.set(0.001, 0.001, 0.001); // invisible initially
+    puddleMesh.visible = false;
+    scene.add(puddleMesh);
+
+    // 4h. Coffee Pouring Stream mesh
+    streamTexture = createStreamTexture();
+    const streamMaterial = new THREE.MeshStandardMaterial({
+      map: streamTexture,
+      roughness: 0.2,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.92
+    });
+    // Base cylinder of height 1.0. We translate its vertex coordinates down by 0.5 on Y
+    // so its local origin is at the top of the cylinder. This makes scaling Y act from the top.
+    const streamGeometry = new THREE.CylinderGeometry(0.05, 0.065, 1.0, 16, 1, true);
+    streamGeometry.translate(0, -0.5, 0); 
+    streamMesh = new THREE.Mesh(streamGeometry, streamMaterial);
+    streamMesh.visible = false;
+    scene.add(streamMesh);
 
   } catch (e) {
     console.error('3D cup build error:', e);
@@ -716,6 +930,97 @@ document.addEventListener('DOMContentLoaded', () => {
     cupGroup.rotation.x = currentRx + mouseTiltX * 0.45;
     cupGroup.rotation.y = currentRy + hoverRotY + mouseTiltY * 0.45;
     cupGroup.rotation.z = currentRz;
+
+    // Update cup's world matrix to compute exact world coordinates of the rim
+    cupGroup.updateMatrixWorld(true);
+
+    // Find the point on the rim that has the lowest Y coordinate in world space
+    let lowestWorldY = Infinity;
+    const lowestWorldPos = new THREE.Vector3();
+    const tempV = new THREE.Vector3();
+    for (let i = 0; i < 16; i++) {
+      const theta = (i / 16) * Math.PI * 2;
+      tempV.set(1.23 * Math.cos(theta), 1.3, 1.23 * Math.sin(theta));
+      tempV.applyMatrix4(cupGroup.matrixWorld);
+      if (tempV.y < lowestWorldY) {
+        lowestWorldY = tempV.y;
+        lowestWorldPos.copy(tempV);
+      }
+    }
+
+    // Scroll-synchronized spill logic
+    const spillStart = 0.48;
+    const spillEnd = 0.72;
+
+    if (currentProgress < spillStart) {
+      // Cup is upright, liquid is full
+      if (liquidMesh) {
+        liquidMesh.position.y = 1.15;
+        liquidMesh.scale.set(1, 1, 1);
+      }
+      if (streamMesh) {
+        streamMesh.visible = false;
+      }
+      if (puddleMesh) {
+        puddleMesh.visible = false;
+        puddleMesh.scale.set(0.001, 0.001, 0.001);
+      }
+      puddleLocked = false;
+    } else if (currentProgress >= spillStart && currentProgress <= spillEnd) {
+      // Cup is tilting and coffee is spilling
+      const tSpill = (currentProgress - spillStart) / (spillEnd - spillStart);
+      
+      // Liquid level drops inside the cup
+      if (liquidMesh) {
+        const newY = 1.15 - tSpill * 1.65; // drops down to -0.5
+        liquidMesh.position.y = newY;
+        const newR = 0.9 + (newY + 1.3) * 0.1346;
+        const scaleFactor = newR / 1.23;
+        liquidMesh.scale.set(scaleFactor, 1, scaleFactor);
+      }
+
+      // Render flowing stream connecting the lowest rim point to the floor
+      if (streamMesh) {
+        streamMesh.visible = true;
+        const streamH = lowestWorldPos.y - floorY;
+        if (streamH > 0) {
+          streamMesh.position.set(lowestWorldPos.x, floorY + streamH / 2, lowestWorldPos.z);
+          streamMesh.scale.set(1, streamH, 1);
+        }
+        if (streamTexture) {
+          streamTexture.offset.y -= 0.045; // scroll downward
+        }
+      }
+
+      // Lock puddle position on the floor at initial stream contact point and grow it
+      if (puddleMesh) {
+        puddleMesh.visible = true;
+        if (!puddleLocked) {
+          puddlePos.set(lowestWorldPos.x, floorY + 0.005, lowestWorldPos.z);
+          puddleMesh.position.copy(puddlePos);
+          puddleLocked = true;
+        }
+        const puddleGrowT = Math.min(1.0, tSpill / 0.4); // reach max size quickly
+        const scale = puddleGrowT * maxPuddleScale;
+        puddleMesh.scale.set(scale, scale, scale);
+      }
+    } else {
+      // Cup has rotated upright, stream stops, but puddle remains locked on the floor
+      if (liquidMesh) {
+        liquidMesh.position.y = -0.5;
+        const newR = 0.9 + (-0.5 + 1.3) * 0.1346;
+        const scaleFactor = newR / 1.23;
+        liquidMesh.scale.set(scaleFactor, 1, scaleFactor);
+      }
+      if (streamMesh) {
+        streamMesh.visible = false;
+      }
+      if (puddleMesh) {
+        puddleMesh.visible = true;
+        puddleMesh.position.copy(puddlePos); // keep locked position
+        puddleMesh.scale.set(maxPuddleScale, maxPuddleScale, maxPuddleScale); // keep full size
+      }
+    }
 
     // 11d. Lerp Custom Cursor (Hardware-Accelerated 3D Transform - no layout reflows!)
     if (cursor && !isTouchDevice) {
